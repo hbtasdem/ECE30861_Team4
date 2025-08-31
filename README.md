@@ -6,3 +6,5 @@ Members are Hilal B Tasdemir, Georgia Griffin, Navya Datla, and Sai Ganadavarapu
 Georgia Griffin
 
 Sai Gandavarapu
+
+Navya Datla
