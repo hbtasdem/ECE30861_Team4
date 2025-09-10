@@ -12,12 +12,13 @@ INCOMPATIBLE_LICENSES = {"gpl", "agpl", "lgpl", "non-commercial", "creative comm
 
 def get_license_from_api(model_id: str) -> str:
     "Will get the license from the HF API model"
+    # try and except --> code that may throw an expection and has block for error handling
     try:
         api = HfApi()
         model_info = api.model_info(repo_id=model_id)
-        if hasattr(model_info, 'cardData') and model_info.cardData:
+        if hasattr(model_info, 'cardData') and model_info.cardData: # check if the model info has the term cardData 
             return model_info.cardData.get('license')
-    except Exception as e:
+    except Exception as e: #handles erroors such as network issues, model not found, etc
         logger.error(f"Error getting license from API for {model_id}: {e}")
     return None
 
