@@ -1,5 +1,5 @@
 
-def masterScoring(user_url: str) -> None: 
+def masterScoring(user_url: str) -> None: #call scoring functions
    
     from urllib.parse import urlparse
     import requests as rq
@@ -34,4 +34,5 @@ def main():
         masterScoring(user_url)
 
 if __name__ == "__main__":
-    main()
+    main() 
+    
