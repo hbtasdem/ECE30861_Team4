@@ -25,7 +25,7 @@ def calculate_size_score(model_id: str) -> Dict[str, float]:
         score = max(0.0, 1.0 - (largest_file_gb / threshold))
         size_scores[device] = round(score, 2) # Keep it to 2 decimal places
     
-    # An AWS server can handle all size, so it always gets a 1.0
+    # An AWS server can handle any size, so it always gets a 1.0
     size_scores['aws_server'] = 1.0
     
     return size_scores
