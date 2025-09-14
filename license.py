@@ -1,17 +1,29 @@
-from huggingface_hub import HfApi, ModelInfo
-from huggingface_hub import snapshot_download
+from huggingface_hub import HfApi, ModelInfo # For interacting with HF API
+from huggingface_hub import snapshot_download # For downloading repo files
 from pathlib import Path
 import re
 from typing import Optional, Dict, Any
 import logging
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) # Set up logging for debugging
 
 COMPATIBLE_LICENSES = {"apache-2.0", "mit", "bsd-3-clause", "bsd-3", "bsl-1.0"}
 INCOMPATIBLE_LICENSES = {"gpl", "agpl", "lgpl", "non-commercial", "creative commons"}
 
 def extract_license_from_readme(readme_text: str) -> Optional[str]:
-    """Extract license section from README text."""
+    """
+    Extract license section from README text.
+
+    Parameters
+    ----------
+    readme_text : str
+        The text content of the README file.
+
+    Returns
+    -------
+    Optional[str]
+        The extracted license section, or None if not found.
+    """
     patterns = [
         r'##\s*License[^#]*(.*?)(?=##|$)',
         r'##\s*Licensing[^#]*(.*?)(?=##|$)',
@@ -25,7 +37,19 @@ def extract_license_from_readme(readme_text: str) -> Optional[str]:
     return None
 
 def get_license_from_api(model_id: str) -> str:
-    "Will get the license from the HF API model"
+    """
+    Get the license from the Hugging Face API model.
+
+    Parameters
+    ----------
+    model_id : str
+        The model identifier on Hugging Face.
+
+    Returns
+    -------
+    str
+        The license name, or None if not found.
+    """
     try: 
         api = HfApi()
         model_info = api.model_info(repo_id=model_id) # Check cardData for license field as specified in project requirements
@@ -36,6 +60,19 @@ def get_license_from_api(model_id: str) -> str:
     return None
 
 def is_gated_model(model_id: str) -> bool:
+    """
+    Check if the model is gated or has a custom license.
+
+    Parameters
+    ----------
+    model_id : str
+        The model identifier on Hugging Face.
+
+    Returns
+    -------
+    bool
+        True if the model is gated, False otherwise.
+    """
     try:
         api = HfApi()
         model_info = api.model_info(repo_id=model_id)
@@ -51,16 +88,28 @@ def is_gated_model(model_id: str) -> bool:
                     return True
     except Exception as e:
         logger.error(f"Error checking if model is gated for {model_id}: {e}")
-        return False
+        return False 
     return False
 
 def get_license_from_repo(model_id: str) -> Optional[str]:
-    """Clone the repository and extract license information from files."""
+    """
+    Clone the repository and extract license information from files.
+
+    Parameters
+    ----------
+    model_id : str
+        The model identifier on Hugging Face.
+
+    Returns
+    -------
+    Optional[str]
+        The license text found in the repo, or None if not found.
+    """
     try:
         # Download only necessary files for efficiency (ignore large model weights)
         repo_path = Path(repo_path)
 
-         # Check for license files in priority order (LICENSE > COPYING > LICENCE)
+        # Check for license files in priority order (LICENSE > COPYING > LICENCE)
         for filename in ["LICENSE", "COPYING", "LICENCE"]:
             file_path = repo_path / filename
             if file_path.exists():
@@ -80,14 +129,38 @@ def get_license_from_repo(model_id: str) -> Optional[str]:
         return None
 
 def contains_compatible_license(license_text: str) -> bool:
-    """Check if license text contains a compatible license."""
+    """
+    Check if license text contains a compatible license.
+
+    Parameters
+    ----------
+    license_text : str
+        The license text to check.
+
+    Returns
+    -------
+    bool
+        True if a compatible license is found, False otherwise.
+    """
     if not license_text:
         return False
     lower_text = license_text.lower() #for case-insensitive comparison
     return any(license in lower_text for license in COMPATIBLE_LICENSES)
 
 def contains_license_keywords(license_text: str) -> bool:
-    """Check if license text contains keywords like license or copyright."""
+    """
+    Check if license text contains keywords like license or copyright.
+
+    Parameters
+    ----------
+    license_text : str
+        The license text to check.
+
+    Returns
+    -------
+    bool
+        True if license keywords are found, False otherwise.
+    """
     if not license_text:
         return False
     lower_text = license_text.lower()
@@ -97,6 +170,16 @@ def contains_license_keywords(license_text: str) -> bool:
 def get_license_score(model_id: str) -> float:
     """
     Returns a float score between 0.0 and 1.0 for license quality.
+
+    Parameters
+    ----------
+    model_id : str
+        The model identifier on Hugging Face.
+
+    Returns
+    -------
+    float
+        The license quality score.
     """
     # 1. Try HF API for license
     license_name = get_license_from_api(model_id)
