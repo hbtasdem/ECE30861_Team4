@@ -1,0 +1,37 @@
+# def masterScoring(user_url: str, type: str) -> None: #call scoring functions
+   
+#     from urllib.parse import urlparse
+#     import requests as rq
+#     import re
+#     import json
+    
+#     parsed_url = urlparse(user_url) #needed to translate user url to HF api url
+#     path = parsed_url.path.strip('/') 
+        
+#     api_url = f'https://huggingface.co/api/models/{path}' #HF api url
+#     api_response = rq.get(api_url) #rest api GET
+#     api_info = api_response.json()
+#     # readme_url = f"https://huggingface.co/{user_url}/raw/main/README.md"
+#     readme_url = f"https://huggingface.co/{path}/raw/main/README.md"
+    
+        
+#     try:
+#         readme = rq.get(readme_url, timeout= 50)
+#         if readme.status_code == 200:
+#             readme_text = readme.text
+#         else:
+#             print(f"Readme not found. Error code: {readme.status_code}")
+#     except rq.RequestException as e:
+#         print(f"Error fetching Readme: {e}")
+    
+#     readme = readme.text.lower()
+#     print(readme)
+#     # license = license_check(api_info)
+#     #print(api_info) #debug -using api to get info
+    
+#     #relevance_checker(api_info)
+#     complete_checker(api_info, readme)
+#     code_quality(type, api_info, readme)
+#     # coverage_checker(api_info, readme)
+#     #code_quality(api_info, readme)
+#     #accuracy_checker(readme)
