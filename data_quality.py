@@ -57,7 +57,7 @@ Correctness
 
 (09/16) Decided to take the correctness metric down as it is impractical to check during run time
 (09/21) Found Accuracy tag in one of the readmes so added a regex expression to extract it in case most models have it
-    (IMP) Will lower the accuracy weight since it might not be a common practice to have accuracy value displayed in readme.
+    (IMP) Will lower the accuracy weight (0.5 -> 0.2) since it might not be a common practice to have accuracy value displayed in readme.
 '''
 def correct_checker(readme: str) -> int:
     import re
@@ -159,22 +159,45 @@ def relevance_checker(api_info: str) -> int:
 
     #categorize relevance based on the number of days passed 
         #might need to change the thresholds depending on the testcases fed, relevance of 1 year might be too ambitious
-    if days_passed > 360: #720 maybe?
-        relevance_score = 0.01
-    elif days_passed > 180:
-        relevance_score = 0.03
-    elif days_passed > 90:
-        relevance_score = 0.06
-    else:
+    if days_passed > 720: 
         relevance_score = 0.1
+    elif days_passed > 360:
+        relevance_score = 0.4
+    elif days_passed > 180:
+        relevance_score = 0.7
+    else:
+        relevance_score = 1.0
     
     return relevance_score 
 
-def data_quality_calc(complete_score: int, correct_score: int, coverage_score: int, relevance_score: int) -> int:
+'''
+Finalizes data_quality calcs
+
+Parameters
+----------
+api_info: str
+    api info in json format, extracted from user input post-parsing, passed in from master_scoring
+readme: str 
+    readme passed in from master_scoring
+
+Returns
+-------
+data_quality_score : int
+    calculated with the following metrics:
+        - completeness -> checks list of completeness keywords in the card_data and readme, weight: 0.3x
+        - correctness -> extracts the accuracy tag & its value from readmes, weight: 0.2x (since most readmes dont have it)
+        - coverage -> readme filter words count to analyze coverage, weight: 0.2x
+        - relevance -> checks the # of days since the model created, weight: 0.3x
+'''
+def data_quality(api_info, readme) -> int:
     
     data_quality_score = 0.0
     
+    complete = complete_checker(api_info, readme)
+    correct = correct_checker(readme)
+    coverage = coverage_checker(api_info, readme)
+    relevance = relevance_checker(api_info)
+    
+    data_quality_score = (complete * 0.3 + correct * 0.2 + coverage * 0.2 + relevance * 0.3)
+    
     return data_quality_score
-
-
-'''add a new function data_quality which will be the main function here'''

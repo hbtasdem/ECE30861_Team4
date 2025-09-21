@@ -73,10 +73,7 @@ def masterScoring(user_url: str, type: str) -> None:
     ''' -- SCORE FUNC CALLS --'''
     
     # DATA QUALITY
-    #complete_checker(api_info, readme)
-    #correct_checker(readme)
-    #coverage_checker(api_info, readme)
-    #relevance_checker(api_info)
+    #data_quality(api_info, readme)
     
     # CODE QUALITY
     #code_quality(type, api_info, readme)
