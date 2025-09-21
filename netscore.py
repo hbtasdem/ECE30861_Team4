@@ -19,7 +19,10 @@ def calculate_net_score(model_id: str) -> float:
     # Calculate individual metric scores
     license_score = get_license_score(model_id)
     size_scores = calculate_size_score(model_id)
-    size_avg = sum(size_scores.values()) / len(size_scores)  # Average of hardware scores
+    
+    # Extract hardware scores (ignore latency)
+    hardware_scores = size_scores['size_score']
+    size_avg = sum(hardware_scores.values()) / len(hardware_scores)  # Average of hardware scores
 
     # Placeholder values for other metrics (replace with actual calculations)
     ramp_up = 0.8  # Example value
@@ -41,7 +44,7 @@ def calculate_net_score(model_id: str) -> float:
     )
     
     # Multiply by license score (acts as a gatekeeper)
-    net_score = license_score * weighted_sum
+    net_score = license_score['license'] * weighted_sum
     
     return round(net_score, 2)
 

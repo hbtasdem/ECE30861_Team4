@@ -24,7 +24,7 @@ def get_largest_file_size_gb(model_id: str) -> float:
         # Find the largest file size
         largest_size = 0
         for file in model_info.siblings:
-            if file.size > largest_size:
+            if file.size is not None and file.size > largest_size:
                 largest_size = file.size
                 
         return largest_size / (1024 ** 3)  # Convert bytes to GB
