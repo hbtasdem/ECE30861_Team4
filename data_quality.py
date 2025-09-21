@@ -76,7 +76,7 @@ def correct_checker(readme: str) -> int:
        if match:
            accuracy_val = float(match.group(1))
            return accuracy_val
-
+    return 0.0
 '''
 Try #1: treats more data labels = more coverage
 Coverage calculator -> readme content search to analyze coverage
