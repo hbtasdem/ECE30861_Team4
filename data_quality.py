@@ -6,25 +6,76 @@ from huggingface_hub.utils import EntryNotFoundError
 
 '''
 Completeness
+comment out once completed after readme info can be verified
+pip3 install datasets
+
+Try #1: Check a list of completeness keywords in the card_data and readme, not an ideal indicator of completeness
+Try #2: Use pandas isnull to check if there's a missing value in the dataset
 '''
-def complete_checker(api_info: str, readme_) -> int:
+def complete_checker(api_info: str, readme: str) -> int:
+    
+    from urllib.parse import urlparse
     
     complete_score = 0.0
     
+    
     card_data = api_info.get('cardData', {})
-        
-    return complete_score
+    
+    #the following list of completeness keywords was created using Claude Sonnet 4
+    complete_kw= {
+    # Essential metadata completeness
+    'license': 'License information present',
+    'description': 'Clear dataset description',
+    'use': 'Uses',
+    'limitation': 'Limitations',
+    'tags': 'Keywords for model categorization',
+    'citation': 'Proper citation information',
+    'source': 'Data source attribution',
+    'language': 'Data languages available'
+    }
+    
+    check1 = sum(1 for item in complete_kw if item in card_data)
+    check2 = sum(1 for item in complete_kw if item in readme)
+    checklist = check1 + check2
+    
+    print(card_data)
+    # print(readme)
+    print(checklist)
+    
+   
+    if checklist >= 7: 
+        return 1.0   
+    elif checklist >= 4:
+        return 0.5
+    else:
+        return 0.1  
+
 
 
 '''
 Correctness
+
+(09/16) Decided to take the correctness metric down as it is impractical to check during run time
+(09/21) Found Accuracy tag in one of the readmes so added a regex expression to extract it in case most models have it
+    (IMP) Will lower the accuracy weight since it might not be a common practice to have accuracy value displayed in readme.
 '''
-def correct_checker(api_info: str) -> int:
+def correct_checker(readme: str) -> int:
+    import re
     
-    correct_score = 0.0
+    if not readme:
+        return 0.0
+    
+    acc_pattern = [
+        r'type:\s*accuracy\s*value:\s*([\d.]+)',
+        r'accuracy:\s*([\d.]+)',
+        r'"accuracy":\s*([\d.]+)',
+    ]
 
-    return correct_score
-
+    for pattern in acc_pattern:
+       match = re.search(pattern, readme, re.IGNORECASE)
+       if match:
+           accuracy_val = float(match.group(1))
+           return accuracy_val
 
 '''
 Try #1: treats more data labels = more coverage
@@ -108,7 +159,7 @@ def relevance_checker(api_info: str) -> int:
 
     #categorize relevance based on the number of days passed 
         #might need to change the thresholds depending on the testcases fed, relevance of 1 year might be too ambitious
-    if days_passed > 360: 
+    if days_passed > 360: #720 maybe?
         relevance_score = 0.01
     elif days_passed > 180:
         relevance_score = 0.03
@@ -124,3 +175,6 @@ def data_quality_calc(complete_score: int, correct_score: int, coverage_score: i
     data_quality_score = 0.0
     
     return data_quality_score
+
+
+'''add a new function data_quality which will be the main function here'''
