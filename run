@@ -27,13 +27,13 @@ COMMAND=$1
 # ./run install
 #---------------------
 if [ "$COMMAND" == "install" ]; then
-    if [ ! -f requirements.txt ]; then
+    if [ ! -f dependencies.txt ]; then
         echo "No dependencies file found."
         exit 0
     fi
     echo "Installing dependencies"
-    if [ -s requirements.txt ]; then
-        pip install --user -r requirements.txt
+    if [ -s dependencies.txt ]; then
+        pip install --user -r dependencies.txt
     fi
     echo "Dependencies installed successfully."
     exit 0
