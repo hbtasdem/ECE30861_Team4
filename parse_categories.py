@@ -17,6 +17,8 @@ Returns
 -------
     None
 '''
+import data_quality
+import code_quality
 
 def masterScoring(user_url: str, type: str) -> None:
     from urllib.parse import urlparse
@@ -70,13 +72,22 @@ def masterScoring(user_url: str, type: str) -> None:
             except:
                 readme = ""
 
+
+    print('api_info', api_info)
+    print('readme', readme)
+    
     ''' -- SCORE FUNC CALLS --'''
     
     # DATA QUALITY
-    #data_quality(api_info, readme)
+    # data_quality = data_quality(api_info, readme)
     
     # CODE QUALITY
-    #code_quality(type, api_info, readme)
+    # code_quality = code_quality(type, api_info, readme)
+    
+    # NET SCORE
+    
+    
+    
 
 '''
 Main function to get & condition the user input url
