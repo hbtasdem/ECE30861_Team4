@@ -26,6 +26,11 @@ def masterScoring(user_url: str, type: str) -> None:
     import re
     import json
     
+    
+    # An input can have all three so fix this file so all 3 categories can be separated and stored in 
+    # different variables and then pass these values in to the metric calculation. instead of having if-elses,
+    # you can just use everything that is there
+    
     parsed_url = urlparse(user_url)
     path = parsed_url.path.strip('/')
     
