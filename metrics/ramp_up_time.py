@@ -155,17 +155,17 @@ def ramp_up_time(api_info : dict) -> float:
     return ramp_up_time_metric_score
 
 
-def main(): 
-    api_info = masterScoring('https://huggingface.co/google/gemma-3-270m')
+# def main(): 
+#     api_info = masterScoring('https://huggingface.co/google/gemma-3-270m')
 
-    ramp_up_time_score = calculate_ramp_up_time(api_info)
+#     ramp_up_time_score = calculate_ramp_up_time(api_info)
 
-    # print(api_info.get("cardData"))
-    # print(api_info.get("siblings"))
+#     # print(api_info.get("cardData"))
+#     # print(api_info.get("siblings"))
 
-    print("Ramp up Time Score")
-    print(str(ramp_up_time_score))
+#     print("Ramp up Time Score")
+#     print(str(ramp_up_time_score))
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

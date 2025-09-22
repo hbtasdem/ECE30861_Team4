@@ -99,12 +99,12 @@ def bus_factor(api_info) -> float:
     return bus_factor_metric_score
 
 
-def main(): 
-    api_info = masterScoring('https://huggingface.co/google/gemma-3-270m')
+# def main(): 
+#     api_info = masterScoring('https://huggingface.co/google/gemma-3-270m')
 
-    bus_factor_score = calculate_bus_factor(api_info)
-    print(str(bus_factor_score))
+#     bus_factor_score = calculate_bus_factor(api_info)
+#     print(str(bus_factor_score))
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

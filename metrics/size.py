@@ -60,3 +60,8 @@ def calculate_size_score(model_dir: str) -> Dict[str, float]:
     size_scores['aws_server'] = 1.0
     
     return size_scores
+
+def size_calculator(model_dir: str):
+    size_scores = calculate_size_score(model_dir)
+    
+    return size_scores

@@ -40,7 +40,9 @@ def fetch_dataset_card(dataset_url: str) -> dict:
     float
         latency of metric in seconds
 """
+# def dataset_and_code_score(code_link, dataset_link):
 def dataset_and_code_score(code_link, dataset_link):
+
     # start latency timer 
     start = time.time()
 

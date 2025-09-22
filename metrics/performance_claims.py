@@ -29,6 +29,7 @@ def fetch_model_card(model_url: str) -> dict:
         model_id = path
 
     info = model_info(model_id)
+    print(info)
     return model_id, info
 
 
