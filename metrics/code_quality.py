@@ -19,15 +19,20 @@ code_quality_score : int
         - testability -> readme filter words count, weight: 0.2x
     
 '''
-def code_quality_calc(type: str, api_info: str, readme: str) -> int:
+# def code_quality_calc(type: str, api_info: str, readme: str) -> int:
+def code_quality_calc(model_info: str, code_info: str, model_readme: str, code_readme: str):
+
     import requests as rq
+    import time
+    
+    start = time.time()
 
     # init metrics used in final score calculation to avoid bugs
     len_score = 0.0
     pop_score = 0.0
     
     # reusability check
-    doc_length = len(readme.split()) # documentation lenght in words
+    doc_length = len(model_readme.split()) # documentation lenght in words
     if doc_length > 1000:
         len_score = 1.0
     elif doc_length > 500:
@@ -43,7 +48,7 @@ def code_quality_calc(type: str, api_info: str, readme: str) -> int:
     if type == 'MODEL':
         
         # downloads check from card_data (for models)
-        popularity = api_info.get('downloads', 0) 
+        popularity = model_info.get('downloads', 0) 
         if popularity > 700000:
             pop_score = 1.0
         elif popularity > 500000:
@@ -56,8 +61,8 @@ def code_quality_calc(type: str, api_info: str, readme: str) -> int:
         print("pop:", pop_score) 
     
     elif type == 'CODE': 
-        stars = api_info.get('stargazers_count', 0)
-        forks = api_info.get('forks_count', 0)
+        stars = code_info.get('stargazers_count', 0)
+        forks = code_info.get('forks_count', 0)
         
         # stars + forks check of github repo (for code)
         if stars + forks > 90000:
@@ -73,15 +78,25 @@ def code_quality_calc(type: str, api_info: str, readme: str) -> int:
     
     # test keywords from readme
     testability_indicators = ['test', 'tested', 'testing', 'pytest', 'unittest', 'unit test', 'ci', 'continuous integration']
-    test_mentions = sum(1 for indicator in testability_indicators if indicator in readme)
+    test_mentions = sum(1 for indicator in testability_indicators if indicator in code_readme)
     test_score = min(test_mentions / 3, 1)  # 3 keywords = full points
     
     code_quality_score = min(len_score * 0.4 + pop_score * 0.4 + test_score * 0.2, 1)
     print("code:", code_quality_score)
-    return code_quality_score
+    end = time.time()
+    
+    latency = end - start
+    print(latency)
+    return code_quality_score, latency
 
 
-def code_quality(type: str, api_info: str, readme: str) -> int:
-    code_quality_score = code_quality_calc(type, api_info, readme)
+# def code_quality(type: str, api_info: str, readme: str) -> int:
+#     code_quality_score = code_quality_calc(type, api_info, readme)
+    
+#     return code_quality_score
+
+def code_quality(model_info: str, code_info: str, model_readme: str, code_readme: str) -> int:
+    
+    code_quality_score = code_quality_calc(model_info, code_info, model_readme, code_readme)
     
     return code_quality_score
