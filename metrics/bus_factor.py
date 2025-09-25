@@ -130,7 +130,6 @@ def bus_factor(api_info) -> float:
     
     # start latency timer 
     start = time.time()
-    print (f"Start: {start}")
 
     contributor_diversity_score = calculate_contributor_diversity_score(api_info)
     active_maintenance_score = calculate_active_maintenance_score(api_info)
@@ -142,9 +141,7 @@ def bus_factor(api_info) -> float:
     
     # end latency timer 
     end = time.time()
-    print (f"End: {end}")
 
     latency = end - start 
-    print (f"Latency: {latency}")
 
     return round(bus_factor_metric_score, 2), latency
