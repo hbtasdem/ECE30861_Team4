@@ -19,7 +19,7 @@ code_quality_score : int
         - testability -> readme filter words count, weight: 0.2x
     
 '''
-def code_quality(type: str, api_info: str, readme: str) -> int:
+def code_quality_calc(type: str, api_info: str, readme: str) -> int:
     import requests as rq
 
     # init metrics used in final score calculation to avoid bugs
@@ -78,4 +78,10 @@ def code_quality(type: str, api_info: str, readme: str) -> int:
     
     code_quality_score = min(len_score * 0.4 + pop_score * 0.4 + test_score * 0.2, 1)
     print("code:", code_quality_score)
+    return code_quality_score
+
+
+def code_quality(type: str, api_info: str, readme: str) -> int:
+    code_quality_score = code_quality_calc(type, api_info, readme)
+    
     return code_quality_score

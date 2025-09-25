@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# This is the executable file for CLI
+# Valid CLI bash input: 
+#   ./run install
+#       Installs any dependencies 
+#   ./run URL_FILE
+#       URL_FILE is the absolute location of a file of URLS
+#       This will actually run the main code
+#   ./run test
+#       Run the test suite 
+
+# note: using chatgpt a lot in this, a good amount of copy paste since I'm not familiar with this
+
+set -e # immediately exit non-zero on any failures 
+
+# if no command given, print options and exit
+if [ "$#" -lt 1 ]; then
+    echo "Valid commands with ./run "
+    echo "  install, URL_FILE, test"
+    exit 1
+fi
+
+COMMAND=$1
+
+#---------------------
+# ./run install
+#---------------------
+if [ "$COMMAND" == "install" ]; then
+    if [ ! -f dependencies.txt ]; then
+        echo "No dependencies file found."
+        exit 0
+    fi
+    echo "Installing dependencies"
+    if [ -s dependencies.txt ]; then
+        pip install --user -r dependencies.txt
+    fi
+    echo "Dependencies installed successfully."
+    exit 0
+
+#---------------------
+# ./run test
+#---------------------
+elif [ "$COMMAND" == "test" ]; then
+    # Finish later when create test suite
+    echo "Running test suite"
+    exit 0
+
+#---------------------
+# ./run URL_FILE 
+#---------------------
+elif [ -f "$COMMAND" ]; then
+    echo "Calling Python main to process URLs..."
+    python3 main.py "$COMMAND"
+    exit 0
+
+#---------------------
+# Invalid command
+#---------------------
+else
+    echo "Valid commands with ./run "
+    echo "  install, URL_FILE, test"
+    exit 1
+fi

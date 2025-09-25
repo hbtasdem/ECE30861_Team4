@@ -47,6 +47,7 @@ def masterScoring(user_url: str, type: str) -> None:
         except:
             api_info = {}
         
+        # make this into two sep for dataset and model bc they can be given together
         readme_url = f"https://huggingface.co/{path}/raw/main/README.md"
         try:
             readme = rq.get(readme_url, timeout=50)
