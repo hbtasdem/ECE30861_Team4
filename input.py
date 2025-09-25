@@ -17,6 +17,8 @@ def main():
     import requests as rq
     import re
     import json
+    import sys
+    import metric
     
     model_readme = ""
     dataset_readme = ""
@@ -25,13 +27,51 @@ def main():
     dataset_info = {}
     code_info = {}
     
-    user_input = input() #see if returns user input from cli
+    # user_input = input() #see if returns user input from cli
+        
+    url_file = sys.argv[1]
+    with open(url_file, "r", encoding="ascii") as input:
+        # loop for reading each line:
+        for line in input:
+            # if line:  # skip blank lines
+            print("\n",line)
+
+            urls = [url.strip() for url in line.split(',')]
+
+            raw_code_url = urls[0]
+            raw_dataset_url = urls[1]
+            raw_model_url = urls[2]
+
+            print("code:", raw_code_url)
+            print("dataset:", raw_dataset_url)
+            print("model:", raw_model_url)
+                
+            parsed_model = urlparse(raw_model_url)
+            model_path = parsed_model.path.strip('/')
+            parsed_dataset = urlparse(raw_dataset_url)
+            dataset_path = parsed_dataset.path.strip('/')
+            parsed_code = urlparse(raw_code_url)
+            code_path = parsed_code.path.strip('/')
+            
+            model_url = f'https://huggingface.co/api/models/{path}'
     
-    urls = [url.strip() for url in user_input.split(',')]
+            try:
+                api_response = rq.get(model_url)
+                if api_response.status_code == 200:
+                    model_info = api_response.json() #api info for dataset
+            except:
+                model_info = {}
+            
+            model_rm_url = f"https://huggingface.co/{path}/raw/main/README.md"
+            
+            try:
+                model_readme = rq.get(model_rm_url, timeout=50)
+                if model_readme.status_code == 200:
+                    model_readme = model_readme.text.lower()
+            except:
+                model_readme = ""
     
-    for i in urls:
-        if "huggingface.co/datasets" in i: #dataset condition check
-            type = "DATASET"
+        #might not need
             dataset_url = f'https://huggingface.co/api/models/{path}'
             try:
                 api_response = rq.get(dataset_url)
@@ -49,28 +89,8 @@ def main():
             except:
                 dataset_readme = ""
                 
-        elif "huggingface.co/" in i: #model condition check
-            type = "MODEL"
-            model_url = f'https://huggingface.co/api/models/{path}'
-            try:
-                api_response = rq.get(model_url)
-                if api_response.status_code == 200:
-                    model_info = api_response.json() #api info for dataset
-            except:
-                model_info = {}
-            
-            model_rm_url = f"https://huggingface.co/{path}/raw/main/README.md"
-            
-            try:
-                model_readme = rq.get(model_rm_url, timeout=50)
-                if model_readme.status_code == 200:
-                    model_readme = model_readme.text.lower()
-            except:
-                model_readme = ""
                 
-        elif "github.com" in i: #code condition check
-            type = "CODE"
-            match = re.search(r'github\.com/([^/]+)/([^/]+)', user_input)
+            match = re.search(r'github\.com/([^/]+)/([^/]+)', raw_code_url)
             
             if match:
                 owner, repo = match.groups()
@@ -90,11 +110,10 @@ def main():
                         code_readme = code_readme.text.lower()
                 except:
                     code_readme = ""
-        else:
-            raise ValueError("Unknown URL type") #debug statement
-    
-    print(type)    
-
+            
+            net_score = metric.main(model_info, model_readme, raw_model_url, code_info, code_readme, raw_dataset_url)
+            print(net_score)
+                    
     
 if __name__ == "__main__":
     main() 

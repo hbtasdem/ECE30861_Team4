@@ -20,9 +20,12 @@ code_quality_score : int
     
 '''
 # def code_quality_calc(type: str, api_info: str, readme: str) -> int:
-def code_quality_calc(model_info: str, code_info: str, model_readme: str, code_readme: str) -> int:
+def code_quality_calc(model_info: str, code_info: str, model_readme: str, code_readme: str):
 
     import requests as rq
+    import time
+    
+    start = time.time()
 
     # init metrics used in final score calculation to avoid bugs
     len_score = 0.0
@@ -80,7 +83,11 @@ def code_quality_calc(model_info: str, code_info: str, model_readme: str, code_r
     
     code_quality_score = min(len_score * 0.4 + pop_score * 0.4 + test_score * 0.2, 1)
     print("code:", code_quality_score)
-    return code_quality_score
+    end = time.time()
+    
+    latency = end - start
+    print(latency)
+    return code_quality_score, latency
 
 
 # def code_quality(type: str, api_info: str, readme: str) -> int:
