@@ -14,6 +14,11 @@
 
 set -e # immediately exit non-zero on any failures 
 
+# These environment variables will be given in the autograder 
+# set them here to test locally
+export LOG_FILE=error_logs.LOG_FILE
+export LOG_LEVEL=2
+
 # if no command given, print options and exit
 if [ "$#" -lt 1 ]; then
     echo "Valid commands with ./run "
@@ -44,14 +49,15 @@ if [ "$COMMAND" == "install" ]; then
 elif [ "$COMMAND" == "test" ]; then
     # Finish later when create test suite
     echo "Running test suite"
+    # python test_suite.py
     exit 0
 
 #---------------------
 # ./run URL_FILE 
 #---------------------
 elif [ -f "$COMMAND" ]; then
-    echo "Calling Python main to process URLs..."
-    python3 main.py "$COMMAND"
+    echo "Assessing models"
+    python metric.py "$COMMAND"
     exit 0
 
 #---------------------
