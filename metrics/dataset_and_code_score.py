@@ -49,9 +49,9 @@ is well documented, along with any example code.
 Parameters
 ----------
 code_url :   string
-    Hugging Face example code url
+    Example code url
 dataset_url: string
-    Hugging Face dataset url
+    Dataset url
 
 Returns
 -------
