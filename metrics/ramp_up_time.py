@@ -1,4 +1,4 @@
-from parse_categories import masterScoring
+# from parse_categories import masterScoring
 import time
 
 def calculate_api_complexity_score(api_info) -> float: 
@@ -20,18 +20,30 @@ def calculate_api_complexity_score(api_info) -> float:
     pipeline_tag = api_info.get("pipeline_tag", None)
 
     score = 0.5  
+    if pipeline_tag: 
+        if pipeline_tag in {"text-classification", "translation", "summarization", "fill-mask"}:
+            score = 0.5
+        elif pipeline_tag in {"token-classification", "question-answering"}:
+            score = 0.4
+        elif pipeline_tag in {"text-generation", "image-classification"}:
+            score = 0.3
+        elif pipeline_tag is None:
+            score = 0.2
+    
+    else:
+        # if no pipeline tag base on number of files
+        num_files = len(api_info.get("siblings", api_info))  
+        if num_files > 15:
+            score = 0.7
+        else:
+            score = 0.4
 
-    if pipeline_tag in {"text-classification", "translation", "summarization", "fill-mask"}:
-        score = 0.9
-    elif pipeline_tag in {"token-classification", "question-answering"}:
-        score = 0.8
-    elif pipeline_tag in {"text-generation", "image-classification"}:
-        score = 0.7
-    elif pipeline_tag is None:
-        score = 0.4
+    used_storage = api_info.get("usedStorage", 0)
+    if used_storage > 5e9:  # >5GB
+        score *= 0.85
 
-    if "multimodal" in tags or "large" in tags or "gpt" in tags:
-        score -= 0.2
+    if tags and any(t in tags for t in ["multimodal", "large", "gpt"]):
+        score -= 0.1
 
     return score
     
@@ -162,14 +174,18 @@ def ramp_up_time(api_info : dict) -> float:
     community_support_score = calculate_community_support_score(api_info)
     quick_start_availability_score = calculate_quick_start_availability_score(api_info)
 
-    ramp_up_time_metric_score = (0.35 * api_complexity_score + 
+    ramp_up_time_metric_score = (0.25 * api_complexity_score + 
              0.35 * documentation_score + 
-             0.25 * community_support_score + 
-             0.05 * quick_start_availability_score)
+             0.3 * community_support_score + 
+             0.1 * quick_start_availability_score)
+    
+    downloads = api_info.get("downloads", 0)
+    if downloads < 50:  # small/experimental model
+        ramp_up_time_metric_score *= 0.4
     
     # end latency timer 
     end = time.time()
 
     latency = end - start 
     
-    return ramp_up_time_metric_score, latency 
+    return round(ramp_up_time_metric_score, 2), latency 

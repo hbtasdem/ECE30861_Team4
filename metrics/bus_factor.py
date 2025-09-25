@@ -1,4 +1,4 @@
-from parse_categories import masterScoring
+# from parse_categories import masterScoring
 from datetime import datetime, timezone
 import time
 
@@ -143,5 +143,5 @@ def bus_factor(api_info) -> float:
     end = time.time()
 
     latency = end - start 
-    
-    return bus_factor_metric_score, latency
+
+    return round(bus_factor_metric_score, 2), latency
