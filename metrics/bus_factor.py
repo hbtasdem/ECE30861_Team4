@@ -1,5 +1,6 @@
 from parse_categories import masterScoring
 from datetime import datetime, timezone
+import time
 
 def calculate_active_maintenance_score(api_info) -> float: 
     
@@ -87,6 +88,9 @@ def bus_factor(api_info) -> float:
     float
         Bus Factor metric score (0-1)
     """
+    
+    # start latency timer 
+    start = time.time()
 
     contributor_diversity_score = calculate_contributor_diversity_score(api_info)
     active_maintenance_score = calculate_active_maintenance_score(api_info)
@@ -96,14 +100,21 @@ def bus_factor(api_info) -> float:
              0.35 * active_maintenance_score + 
              0.1 * org_backing_score)
     
-    return bus_factor_metric_score
+    # end latency timer 
+    end = time.time()
+
+    latency = end - start 
+    
+    return bus_factor_metric_score, latency
 
 
 # def main(): 
 #     api_info = masterScoring('https://huggingface.co/google/gemma-3-270m')
 
-#     bus_factor_score = calculate_bus_factor(api_info)
-#     print(str(bus_factor_score))
+    bus_factor_score, latency = bus_factor(api_info)
+    print(str(bus_factor_score))
+    print("Latency")
+    print(str(latency))
 
 
 # if __name__ == "__main__":

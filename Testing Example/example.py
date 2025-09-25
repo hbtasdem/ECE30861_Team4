@@ -16,6 +16,7 @@ def add(a, b):
         Sum of a and b
 
     """
+    return a + b
 
 def multiply(a, b): 
     """
