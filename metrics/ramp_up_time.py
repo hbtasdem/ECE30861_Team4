@@ -1,4 +1,5 @@
 from parse_categories import masterScoring
+import time
 
 def calculate_api_complexity_score(api_info) -> float: 
     #having a pipeline task for a specific purpose makes it easier 
@@ -141,6 +142,8 @@ def ramp_up_time(api_info : dict) -> float:
     float
         Ramp-up time metric score (0-1)
     """
+    # start latency timer 
+    start = time.time()
 
     api_complexity_score = calculate_api_complexity_score(api_info)
     documentation_score = calculate_documentation_score(api_info)
@@ -152,19 +155,26 @@ def ramp_up_time(api_info : dict) -> float:
              0.25 * community_support_score + 
              0.05 * quick_start_availability_score)
     
-    return ramp_up_time_metric_score
+    # end latency timer 
+    end = time.time()
+
+    latency = end - start 
+    
+    return ramp_up_time_metric_score, latency 
 
 
 # def main(): 
 #     api_info = masterScoring('https://huggingface.co/google/gemma-3-270m')
 
-#     ramp_up_time_score = calculate_ramp_up_time(api_info)
+    ramp_up_time_score, latency = ramp_up_time(api_info)
 
 #     # print(api_info.get("cardData"))
 #     # print(api_info.get("siblings"))
 
-#     print("Ramp up Time Score")
-#     print(str(ramp_up_time_score))
+    print("Ramp up Time Score")
+    print(str(ramp_up_time_score))
+    print("Latency")
+    print(str(latency))
 
 
 # if __name__ == "__main__":
