@@ -78,8 +78,8 @@ def masterScoring(user_url: str, type: str) -> None:
                 readme = ""
 
 
-    print('api_info', api_info)
-    print('readme', readme)
+    # print('api_info', api_info)
+    # print('readme', readme)
     
     ''' -- SCORE FUNC CALLS --'''
     
@@ -119,7 +119,7 @@ def main():
     else:
         raise ValueError("Unknown URL type") #debug statement
 
-    print(type)
+    # print(type)
 
 # if type == "MODEL" or type == "DATASET":
     masterScoring(user_url, type)

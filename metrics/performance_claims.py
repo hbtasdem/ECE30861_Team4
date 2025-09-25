@@ -2,53 +2,97 @@
 from urllib.parse import urlparse
 import time
 from huggingface_hub import model_info, hf_hub_download
+import os
 import requests
 
+
 """
-    Fetches the model card JSON from Hugging Face given a model URL.
+Use Purdue GenAI Studio to measure performance claims.
 
-    Parameters
-    ----------
-    model_url : str
-        Full Hugging Face model URL.
+Parameters
+----------
+prompt : str
+    Request for information and the README for the model.
 
-    Returns
-    -------
-    dict
-        Parsed JSON from Hugging Face API.
-    """
-def fetch_model_card(model_url: str) -> dict:
+Returns
+-------
+string
+    Response from LLM. Should be just a float in string format
+"""
+def query_genai_studio(prompt: str) -> str:
+    # get api key from environment variable
+    api_key = os.environ.get("GEN_AI_STUDIO_API_KEY")
+    if not api_key:
+        print("Error: GEN_AI_STUDIO_API_KEY environment variable not found")
+
+    url = "https://genai.rcac.purdue.edu/api/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    body = {
+        "model": "llama3.1:latest",
+        "messages": [{"role": "user", "content": prompt}],
+        "stream": False
+    }
+
+    response = requests.post(url, headers=headers, json=body)
+    if response.status_code != 200:
+        raise Exception(f"GenAI Studio API error: {response.status_code}, {response.text}")
+
+    data = response.json()
+    # OpenAI-style completion
+    return data["choices"][0]["message"]["content"]
+
+
+"""
+Fetches the model card JSON from Hugging Face given a model URL.
+
+Parameters
+----------
+model_url : str
+    Hugging Face model URL.
+
+Returns
+-------
+tuple (str, object)
+str
+    The model id parsed from the url 
+object
+    model_info object from Hugging Face
+"""
+def fetch_model_card(model_url: str) -> tuple[str, object]:
     parsed = urlparse(model_url)
     path = parsed.path.strip("/")
     parts = path.split("/")
 
     if "tree" in parts:
         tree_index = parts.index("tree")
-        model_id = "/".join(parts[:tree_index])  # everything before "tree"
+        model_id = "/".join(parts[:tree_index])
     else:
         model_id = path
 
     info = model_info(model_id)
-    print(info)
     return model_id, info
 
 
 """
-    Computes a score 0-1 based on evidence supporting model performance.
+Computes a score 0-1 based on evidence supporting model performance.
 
-    Parameters
-    ----------
-    model_url : str
-        URL to Hugging Face model.
+Parameters
+----------
+model_url : str
+    URL to Hugging Face model.
 
-    Returns
-    -------
-    float
-        Score in range 0-1.
-    float 
-        latency in seconds.
-    """
-def performance_claims(model_url):
+Returns
+-------
+tuple(float, float)
+float
+    Score in range 0-1.
+float 
+    Latency in seconds.
+"""
+def performance_claims(model_url: str) -> tuple[str, str]:
     #start latency timer 
     start = time.time()
     score = 0
@@ -57,8 +101,8 @@ def performance_claims(model_url):
 
     # look for results in the model info
     # if every metric has a value and is verified it gets a 1
-    # 10% is are they verified. 
-    # if all the values are None it gets 0 
+    # 10%  of score is based on are they verified. 
+    # if all the values are None, must check README
     total_vals = 0
     verified = 0
     if info.model_index:
@@ -67,31 +111,39 @@ def performance_claims(model_url):
                 for metric in result.get("metrics",[]):
                     if metric["value"] != None:
                         total_vals += 1
-                        if metric["verified"] == False:
+                        if metric["verified"] == True:
                             verified += 1
     
-    if total_vals != 0:
-        score = 1 - 0.1 * (verified / total_vals)
+    if total_vals != 0: # some values found
+        score = 0.9 + 0.1 * (verified / total_vals)
 
-    else:
-        # model_index not in the model info, so have to search the readme to evaluation metrics
+    else: # no metric values found in model_info
+        # Have to search the readme for evaluation metrics
         path = hf_hub_download(repo_id=model_id, filename="README.md")
         with open(path, "r") as f:
             readme = f.read()
-        # LLM REQUIREMENT FULFILL HERE. complete later. piazza post is unclear how we handle keys. 
 
-        if "[More Information Needed]" in readme:
-            score = 0
-        else:
-            if "Evaluation results" in readme:
-                score += .7
+        # LLM REQUIREMENT FULFILLED HERE.
+        prompt = ( f"Analyze the following README text for evidence of evaluation results or benchmarks "
+                   f"supporting the model's performance. Return a score between 0 and 1. I am using this in "
+                   f"code, so do not return ANYTHING but the float score. \n\nREADME:\n{readme}" )
+        valid_llm_output = False
+        while valid_llm_output == False:
+            llm_score_str = query_genai_studio(prompt)
+            # Get float score from string
+            llm_score = float(llm_score_str.strip())
+            if (llm_score >= 0) and (llm_score <= 1):
+                valid_llm_output = True
+                score = llm_score
+            else:
+                print("Invalid llm output. Retrying.")
 
     end = time.time()
     latency = end - start
     return score, latency
 
 
-# UNIT TEST
+# UNIT TESTS
 class Test_performanceclaims:
     def test1(self):
         model_url = "https://huggingface.co/google-bert/bert-base-uncased"
