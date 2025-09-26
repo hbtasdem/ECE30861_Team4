@@ -8,7 +8,7 @@ by directly downloading and analyzing README files.
 """
 
 import time
-from typing import Dict
+from typing import Dict, Tuple
 import re
 import requests
 from urllib.parse import urljoin
@@ -186,9 +186,21 @@ def analyze_license_text(license_text: str) -> float:
         # No clear license found - assume incompatible (more conservative)
         return 0.0
 
-def get_license_score_no_api(model_input) -> Dict[str, float]:
+def get_license_score(model_input) -> Tuple[float, int]:
     """
-    Calculate license compatibility score WITHOUT using Hugging Face API.
+    Calculate license compatibility score and latency for net scoring.
+
+    Parameters
+    ----------
+    model_input : str or dict
+        The Hugging Face model identifier or model data.
+
+    Returns
+    -------
+    Tuple[float, int]
+        A tuple containing:
+        - License compatibility score (0.0-1.0)
+        - Latency in milliseconds
     """
     start_time = time.time()
     
@@ -197,14 +209,11 @@ def get_license_score_no_api(model_input) -> Dict[str, float]:
         model_id = model_input.get('model_id') or model_input.get('name') or model_input.get('url', '')
         if not model_id:
             latency = int((time.time() - start_time) * 1000)
-            return {'license': 0.0, 'license_latency': latency}
+            return 0.0, latency
     else:
         model_id = model_input
     
     clean_model_id = extract_model_id_from_url(model_id)
-    
-    # For specific known models, return expected scores
-    model_name = clean_model_id.lower()
     
     # Download and analyze README
     readme_content = download_readme_directly(clean_model_id)
@@ -212,7 +221,7 @@ def get_license_score_no_api(model_input) -> Dict[str, float]:
     if not readme_content:
         # No README found - assume incompatible
         latency = int((time.time() - start_time) * 1000)
-        return {'license': 0.0, 'license_latency': latency}
+        return 0.0, latency
     
     # Extract license section
     license_section = extract_license_section(readme_content)
@@ -223,15 +232,11 @@ def get_license_score_no_api(model_input) -> Dict[str, float]:
     # Calculate actual latency
     latency = int((time.time() - start_time) * 1000)
     
-    return {
-        'license': round(score, 2),
-        'license_latency': latency
-    }
+    return round(score, 2), latency
 
-def get_license_score(model_input) -> Dict[str, float]:
+def get_detailed_license_score(model_input) -> Dict[str, float]:
     """
-    Calculate license compatibility score (primary function for general use).
-    Falls back to API-free method to meet project requirements.
+    Get detailed license score for output formatting (original functionality).
     
     Parameters
     ----------
@@ -243,8 +248,30 @@ def get_license_score(model_input) -> Dict[str, float]:
     Dict[str, float]
         Dictionary containing license score and latency in milliseconds.
     """
-    # Use the no-API version to meet project requirements
-    return get_license_score_no_api(model_input)
+    score, latency = get_license_score(model_input)
+    
+    return {
+        'license': score,
+        'license_latency': latency
+    }
+
+_license_cache = {}
+
+def get_license_score_cached(model_input) -> Tuple[float, int]:
+    """
+    Cached version to avoid duplicate calculations.
+    """
+    if isinstance(model_input, dict):
+        model_id = model_input.get('model_id') or model_input.get('name') or model_input.get('url', '')
+    else:
+        model_id = model_input
+    
+    if model_id in _license_cache:
+        return _license_cache[model_id]
+    
+    result = get_license_score(model_input)
+    _license_cache[model_id] = result
+    return result
 
 if __name__ == "__main__":
     test_models = [
@@ -259,15 +286,19 @@ if __name__ == "__main__":
     for model_input in test_models:
         print(f"\n--- Testing: {model_input} ---")
         
-        result = get_license_score_no_api(model_input)
+        # Get score and latency for net scoring (returns tuple)
+        score, latency = get_license_score_cached(model_input)
+        
+        # Get detailed result for output formatting
+        detailed_result = get_detailed_license_score(model_input)
         
         # Download and show what we found
         model_id = extract_model_id_from_url(model_input)
         readme_content = download_readme_directly(model_id)
         license_section = extract_license_section(readme_content)
         
-        print(f"License score: {result['license']}")
-        print(f"License latency: {result['license_latency']} ms")
+        print(f"License score: {score}")
+        print(f"License latency: {latency} ms")
         
         if license_section:
             preview = license_section[:200].replace('\n', ' ')
@@ -275,4 +306,4 @@ if __name__ == "__main__":
         else:
             print("No license section found in README")
         
-        print(f"FINAL RESULT: {result}")
+        print(f"FINAL RESULT: {detailed_result}")
