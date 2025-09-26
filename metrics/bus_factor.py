@@ -1,8 +1,21 @@
-from parse_categories import masterScoring
+# from parse_categories import masterScoring
 from datetime import datetime, timezone
+import time
 
 def calculate_active_maintenance_score(api_info) -> float: 
+    """
+    Calculate active maintenance score based on the creation date an last updated date
     
+    Parameters
+    ----------
+    api_info : dict
+        Dictionary with information about the API
+
+    Returns
+    -------
+    float
+        Active maintenance score (0-1)
+    """
     created_at = api_info.get("createdAt")
     last_modified = api_info.get("lastModified")
 
@@ -40,8 +53,21 @@ def calculate_active_maintenance_score(api_info) -> float:
     
     return update_score * 0.75 + age_score * 0.25
 
-def calculate_contributor_diversity_score(api_info) -> float:
 
+def calculate_contributor_diversity_score(api_info) -> float:
+    """
+    Calculate contributor diversity score based on the number of contributors
+    
+    Parameters
+    ----------
+    api_info : dict
+        Dictionary with information about the API
+
+    Returns
+    -------
+    float
+        Contributor diversity score (0-1)
+    """
     num_contributors = len(api_info.get('spaces', []))
 
     if num_contributors == 0 or num_contributors == 1: 
@@ -61,6 +87,20 @@ def calculate_contributor_diversity_score(api_info) -> float:
 
 
 def calculate_org_backing_score(api_info) -> float:
+    """
+    Calculate organizational backing score based on if the organization falls in the list of known orgs
+
+    Parameters
+    ----------
+    api_info : dict
+        Dictionary with information about the API
+
+    Returns
+    -------
+    float
+        Organizational backing score (0-1)
+    """
+
     KNOWN_ORGS = {"google", "meta", "microsoft", "openai", "apple", "ibm", "huggingface"}
 
     author = api_info.get("author", "").lower()
@@ -87,6 +127,9 @@ def bus_factor(api_info) -> float:
     float
         Bus Factor metric score (0-1)
     """
+    
+    # start latency timer 
+    start = time.time()
 
     contributor_diversity_score = calculate_contributor_diversity_score(api_info)
     active_maintenance_score = calculate_active_maintenance_score(api_info)
@@ -96,15 +139,9 @@ def bus_factor(api_info) -> float:
              0.35 * active_maintenance_score + 
              0.1 * org_backing_score)
     
-    return bus_factor_metric_score
+    # end latency timer 
+    end = time.time()
 
+    latency = end - start 
 
-# def main(): 
-#     api_info = masterScoring('https://huggingface.co/google/gemma-3-270m')
-
-#     bus_factor_score = calculate_bus_factor(api_info)
-#     print(str(bus_factor_score))
-
-
-# if __name__ == "__main__":
-#     main()
+    return round(bus_factor_metric_score, 2), latency

@@ -12,10 +12,10 @@ pip3 install datasets
 Try #1: Check a list of completeness keywords in the card_data and readme, not an ideal indicator of completeness
 Try #2: Use pandas isnull to check if there's a missing value in the dataset
 '''
-def complete_checker(api_info: str, readme: str) -> int:
+def complete_checker(api_info, readme):
     
     from urllib.parse import urlparse
-    
+    import requests as rq
     complete_score = 0.0
     
     
@@ -38,9 +38,9 @@ def complete_checker(api_info: str, readme: str) -> int:
     check2 = sum(1 for item in complete_kw if item in readme)
     checklist = check1 + check2
     
-    print(card_data)
+    # print(card_data)
     # print(readme)
-    print(checklist)
+    # print(checklist)
     
    
     if checklist >= 7: 
@@ -59,7 +59,7 @@ Correctness
 (09/21) Found Accuracy tag in one of the readmes so added a regex expression to extract it in case most models have it
     (IMP) Will lower the accuracy weight (0.5 -> 0.2) since it might not be a common practice to have accuracy value displayed in readme.
 '''
-def correct_checker(readme: str) -> int:
+def correct_checker(readme: str):
     import re
     
     if not readme:
@@ -82,7 +82,7 @@ Try #1: treats more data labels = more coverage
 Coverage calculator -> readme content search to analyze coverage
 
 '''
-def coverage_checker(api_info: str, readme: str) -> int:
+def coverage_checker(api_info: str, readme: str):
     
     # Following list of words are used as a filter on the readme file. This lis it curated by 
     # Claude Sonnet 4 with the following prompts: 
@@ -139,7 +139,7 @@ relevance_score : int
         0.01 if the model +360 days old
 
 '''
-def relevance_checker(api_info: str) -> int:
+def relevance_checker(api_info: str):
     
     from datetime import date
     from dateutil import parser
@@ -189,7 +189,9 @@ data_quality_score : int
         - coverage -> readme filter words count to analyze coverage, weight: 0.2x
         - relevance -> checks the # of days since the model created, weight: 0.3x
 '''
-def data_quality(api_info, readme) -> int:
+def data_quality(api_info, readme):
+    import time
+    start = time.time()
     
     data_quality_score = 0.0
     
@@ -199,5 +201,8 @@ def data_quality(api_info, readme) -> int:
     relevance = relevance_checker(api_info)
     
     data_quality_score = (complete * 0.3 + correct * 0.2 + coverage * 0.2 + relevance * 0.3)
+
+    end = time.time()
+    latency = end - start
     
-    return data_quality_score
+    return data_quality_score, latency

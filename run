@@ -56,8 +56,8 @@ elif [ "$COMMAND" == "test" ]; then
 # ./run URL_FILE 
 #---------------------
 elif [ -f "$COMMAND" ]; then
-    echo "Assessing models"
-    python metric.py "$COMMAND"
+    echo "Calling Python main to process URLs..."
+    python3 input.py "$COMMAND"
     exit 0
 
 #---------------------

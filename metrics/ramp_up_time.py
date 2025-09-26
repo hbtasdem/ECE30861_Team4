@@ -1,24 +1,49 @@
-from parse_categories import masterScoring
+# from parse_categories import masterScoring
+import time
 
 def calculate_api_complexity_score(api_info) -> float: 
-    #having a pipeline task for a specific purpose makes it easier 
+    """
+    Calculate API Complexity score based on the tags
+
+    Parameters
+    ----------
+    api_info : dict
+        Dictionary with information about the API
+
+    Returns
+    -------
+    float
+        API complexity score (0-1)
+    """
     
     tags = api_info.get("tags", [])
     pipeline_tag = api_info.get("pipeline_tag", None)
 
     score = 0.5  
+    if pipeline_tag: 
+        if pipeline_tag in {"text-classification", "translation", "summarization", "fill-mask"}:
+            score = 0.5
+        elif pipeline_tag in {"token-classification", "question-answering"}:
+            score = 0.4
+        elif pipeline_tag in {"text-generation", "image-classification"}:
+            score = 0.3
+        elif pipeline_tag is None:
+            score = 0.2
+    
+    else:
+        # if no pipeline tag base on number of files
+        num_files = len(api_info.get("siblings", api_info))  
+        if num_files > 15:
+            score = 0.7
+        else:
+            score = 0.4
 
-    if pipeline_tag in {"text-classification", "translation", "summarization", "fill-mask"}:
-        score = 0.9
-    elif pipeline_tag in {"token-classification", "question-answering"}:
-        score = 0.8
-    elif pipeline_tag in {"text-generation", "image-classification"}:
-        score = 0.7
-    elif pipeline_tag is None:
-        score = 0.4
+    used_storage = api_info.get("usedStorage", 0)
+    if used_storage > 5e9:  # >5GB
+        score *= 0.85
 
-    if "multimodal" in tags or "large" in tags or "gpt" in tags:
-        score -= 0.2
+    if tags and any(t in tags for t in ["multimodal", "large", "gpt"]):
+        score -= 0.1
 
     return score
     
@@ -141,31 +166,26 @@ def ramp_up_time(api_info : dict) -> float:
     float
         Ramp-up time metric score (0-1)
     """
+    # start latency timer 
+    start = time.time()
 
     api_complexity_score = calculate_api_complexity_score(api_info)
     documentation_score = calculate_documentation_score(api_info)
     community_support_score = calculate_community_support_score(api_info)
     quick_start_availability_score = calculate_quick_start_availability_score(api_info)
 
-    ramp_up_time_metric_score = (0.35 * api_complexity_score + 
+    ramp_up_time_metric_score = (0.25 * api_complexity_score + 
              0.35 * documentation_score + 
-             0.25 * community_support_score + 
-             0.05 * quick_start_availability_score)
+             0.3 * community_support_score + 
+             0.1 * quick_start_availability_score)
     
-    return ramp_up_time_metric_score
+    downloads = api_info.get("downloads", 0)
+    if downloads < 50:  # small/experimental model
+        ramp_up_time_metric_score *= 0.4
+    
+    # end latency timer 
+    end = time.time()
 
-
-# def main(): 
-#     api_info = masterScoring('https://huggingface.co/google/gemma-3-270m')
-
-#     ramp_up_time_score = calculate_ramp_up_time(api_info)
-
-#     # print(api_info.get("cardData"))
-#     # print(api_info.get("siblings"))
-
-#     print("Ramp up Time Score")
-#     print(str(ramp_up_time_score))
-
-
-# if __name__ == "__main__":
-#     main()
+    latency = end - start 
+    
+    return round(ramp_up_time_metric_score, 2), latency 
