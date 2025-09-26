@@ -1,4 +1,6 @@
 # Evidence of claims (benchmarks, evals)
+import logger
+
 from urllib.parse import urlparse
 import time
 from huggingface_hub import model_info, hf_hub_download
@@ -23,7 +25,7 @@ def query_genai_studio(prompt: str) -> str:
     # get api key from environment variable
     api_key = os.environ.get("GEN_AI_STUDIO_API_KEY")
     if not api_key:
-        print("Error: GEN_AI_STUDIO_API_KEY environment variable not found")
+        logger.info("Error: GEN_AI_STUDIO_API_KEY environment variable not found")
 
     url = "https://genai.rcac.purdue.edu/api/chat/completions"
     headers = {
@@ -95,6 +97,7 @@ float
 def performance_claims(model_url: str) -> tuple[str, str]:
     #start latency timer 
     start = time.time()
+    logger.info("Calculating performance_claims metric")
     score = 0
 
     model_id, info = fetch_model_card(model_url)
@@ -131,12 +134,15 @@ def performance_claims(model_url: str) -> tuple[str, str]:
         while valid_llm_output == False:
             llm_score_str = query_genai_studio(prompt)
             # Get float score from string
-            llm_score = float(llm_score_str.strip())
-            if (llm_score >= 0) and (llm_score <= 1):
-                valid_llm_output = True
-                score = llm_score
-            else:
-                print("Invalid llm output. Retrying.")
+            try:
+                llm_score = float(llm_score_str.strip())
+                if (llm_score >= 0) and (llm_score <= 1):
+                    valid_llm_output = True
+                    score = llm_score
+                else:
+                    logger.debug("Invalid llm output. Retrying.")
+            except:
+                logger.debug("Invalid llm output. Retrying.")
 
     end = time.time()
     latency = end - start

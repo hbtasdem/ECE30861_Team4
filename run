@@ -14,6 +14,19 @@
 
 set -e # immediately exit non-zero on any failures 
 
+# Load things from a .env
+# I'm not sure this is necessary but idk how to set LOG stuff otherwise
+# For personal testing: make a .env file
+#                  add: LOG_FILE=logfilename.log
+#                       LOG_LEVEL=0        or 1 or 2
+#                       GEN_AI_STUDIO_API_KEY=yourkey
+# DO NOT PUSH .env TO GITHUB, ADD .env TO A .gitignore
+if [ -f .env ]; then
+    set -a
+    source .env
+    set +a
+fi
+
 # if no command given, print options and exit
 if [ "$#" -lt 1 ]; then
     echo "Valid commands with ./run "
@@ -44,6 +57,7 @@ if [ "$COMMAND" == "install" ]; then
 elif [ "$COMMAND" == "test" ]; then
     # Finish later when create test suite
     echo "Running test suite"
+    # python test_suite.py
     exit 0
 
 #---------------------
