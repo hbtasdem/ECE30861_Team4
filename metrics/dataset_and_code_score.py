@@ -1,8 +1,11 @@
 # If the dataset used for training and benchmarking is well documented, 
 #    along with any example code
+import logger
+
 import requests
 import time
 import os
+import sys
 
 """
 Use Purdue GenAI Studio to measure dataset documentation.
@@ -21,7 +24,8 @@ def query_genai_studio(prompt: str) -> str:
     # get api key from environment variable
     api_key = os.environ.get("GEN_AI_STUDIO_API_KEY")
     if not api_key:
-        print("Error: GEN_AI_STUDIO_API_KEY environment variable not found")
+        logger.info("Error: GEN_AI_STUDIO_API_KEY environment variable not found")
+        sys.exit(1)
 
     url = "https://genai.rcac.purdue.edu/api/chat/completions"
     headers = {
@@ -64,6 +68,7 @@ float
 def dataset_and_code_score(code_url: str, dataset_url: str) -> tuple[float,float]:
     # start latency timer 
     start = time.time()
+    logger.info("Calculating dataset_and_score metric")
 
     # Code, Dataset sources, uses, data collection and processing, bias
     # half of score is code exists 
@@ -92,9 +97,9 @@ def dataset_and_code_score(code_url: str, dataset_url: str) -> tuple[float,float
                     valid_llm_output = True
                     score += llm_score * 0.5
                 else:
-                    print("Invalid llm output. Retrying.")
+                    logger.debug("Invalid llm output. Retrying.")
             except:
-                print("Invalid llm output. Retrying.")
+                logger.debug("Invalid llm output. Retrying.")
         
     end = time.time()
     latency = end - start

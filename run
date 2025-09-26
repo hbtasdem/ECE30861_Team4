@@ -14,10 +14,18 @@
 
 set -e # immediately exit non-zero on any failures 
 
-# These environment variables will be given in the autograder 
-# set them here to test locally
-export LOG_FILE=error_logs.LOG_FILE
-export LOG_LEVEL=2
+# Load things from a .env
+# I'm not sure this is necessary but idk how to set LOG stuff otherwise
+# For personal testing: make a .env file
+#                  add: LOG_FILE=logfilename.log
+#                       LOG_LEVEL=0        or 1 or 2
+#                       GEN_AI_STUDIO_API_KEY=yourkey
+# DO NOT PUSH .env TO GITHUB, ADD .env TO A .gitignore
+if [ -f .env ]; then
+    set -a
+    source .env
+    set +a
+fi
 
 # if no command given, print options and exit
 if [ "$#" -lt 1 ]; then

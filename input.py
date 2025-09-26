@@ -3,7 +3,7 @@ import requests as rq
 import re
 import sys
 import metric
-import os
+import logger
 
 """
 If no dataset in input line, see if model was trained on
@@ -20,13 +20,13 @@ string
     The dataset link found, or None. 
 """
 def find_dataset(model_readme: str, seen_datasets: set) -> str:
+    logger.debug("Dataset url not given. Search in previously seen.")
     for dataset_url in seen_datasets:
         dataset = dataset_url.split("/")[-1].lower()
         if dataset in model_readme:
+            logger.debug(f"Updated dataset url:{dataset_url}")
             return dataset_url
-    # None found
-    return None
-
+    return None # None found
 
 '''
 Main function to get & condition the user input url
@@ -40,19 +40,15 @@ Returns
 -------
     None
 '''    
-def main():   
-
-    # invalid git token case
-    if "GITHUB_TOKEN" not in os.environ:
-        sys.exit(1)
-
+def main():
     model_readme = ""
     dataset_readme = ""
     code_readme = ""
     model_info = {}
-    dataset_info = {}
+    dataset_info = {} # DELETE IF NOT USED
     code_info = {}
             
+    logger.debug("\nBegin processing input")
     url_file = sys.argv[1]
     seen_datasets = set()
     with open(url_file, "r", encoding="ascii") as input:
@@ -64,10 +60,7 @@ def main():
             raw_dataset_url = urls[1]
             raw_model_url = urls[2]
 
-            # print("code:", raw_code_url)
-            # print("dataset:", raw_dataset_url)
-            # print("model:", raw_model_url)
-
+            logger.info(f"Raw code url:{raw_code_url}\nRaw dataset url: {raw_dataset_url}\nRaw model url: {raw_model_url}")
 
             # ----- MODEL -----
             # Parse model path    
@@ -126,7 +119,6 @@ def main():
             # DELETE IF NOT USED
             parsed_code = urlparse(raw_code_url)
             code_path = parsed_code.path.strip('/')
-
             match = re.search(r'github\.com/([^/]+)/([^/]+)', raw_code_url)
             if match:
                 owner, repo = match.groups()
@@ -139,7 +131,6 @@ def main():
                         code_info = api_response.json()
                 except:
                     code_info = {}
-                
                 try:
                     code_readme = rq.get(f"{code_url}/readme", headers={'Accept': 'application/vnd.github.v3.raw'})
                     if code_readme.status_code == 200:
@@ -148,11 +139,8 @@ def main():
                     code_readme = ""
             # --------------------
             
+            # Analyze metrics
             metric.main(model_info, model_readme, raw_model_url, code_info, code_readme, raw_dataset_url)
-                    
     
 if __name__ == "__main__":
     main() 
-    
-
-
