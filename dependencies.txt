@@ -1,0 +1,4 @@
+# List each dependency/ package to install with pip on a new line
+requests
+huggingface_hub
+pytest 

@@ -20,7 +20,40 @@ LICENSE_SECTION_PATTERN = re.compile(
     r'^#+\s*licen[cs]e\s*$(.*?)(?=^#+\s|\Z)', 
     re.IGNORECASE | re.MULTILINE | re.DOTALL
 )
+import requests
+from urllib.parse import urljoin
 
+# Pre-compiled regex for better performance
+URL_PATTERN = re.compile(r'huggingface\.co/([^/]+/[^/?]+)')
+LICENSE_HEADER_PATTERN = re.compile(r'^#+\s*licen[cs]e\s*$', re.IGNORECASE | re.MULTILINE)
+LICENSE_SECTION_PATTERN = re.compile(
+    r'^#+\s*licen[cs]e\s*$(.*?)(?=^#+\s|\Z)', 
+    re.IGNORECASE | re.MULTILINE | re.DOTALL
+)
+
+COMPATIBLE_LICENSES = {
+    "apache-2.0", "apache 2.0", "apache license 2.0", "apache",
+    "mit", "mit license", 
+    "bsd-3-clause", "bsd-3", "bsd 3-clause", "bsd",
+    "bsl-1.0", "boost software license",
+    "lgpl-2.1", "lgpl 2.1", "lgplv2.1"  # ACME's license is compatible with itself
+}
+
+INCOMPATIBLE_LICENSES = {
+    "gpl", "gpl-2", "gpl-3", "gplv2", "gplv3", "gnu general public license",
+    "agpl", "agpl-3", "affero gpl",
+    "lgpl", "lgpl-3", "lgplv3",  # Only LGPLv2.1 is compatible
+    "non-commercial", "non commercial", "commercial", "proprietary",
+    "creative commons", "cc-by", "cc-by-nc"
+}
+
+GATED_INDICATORS = {
+    "gated", "gated model", "access request", "request access", 
+    "apply for access", "application required", "license agreement",
+    "terms of use", "terms and conditions", "click through"
+}
+
+def extract_model_id_from_url(url: str) -> str:
 COMPATIBLE_LICENSES = {
     "apache-2.0", "apache 2.0", "apache license 2.0", "apache",
     "mit", "mit license", 
@@ -46,14 +79,19 @@ GATED_INDICATORS = {
 def extract_model_id_from_url(url: str) -> str:
     """
     Extract model ID from various URL formats.
+    Extract model ID from various URL formats.
 
     Parameters
     ----------
     url : str
         The URL from the input file.
+    url : str
+        The URL from the input file.
 
     Returns
     -------
+    str
+        The extracted model ID.
     str
         The extracted model ID.
     """
@@ -67,7 +105,19 @@ def extract_model_id_from_url(url: str) -> str:
     return url
 
 def download_readme_directly(model_id: str) -> str:
+    match = URL_PATTERN.search(url)
+    if match:
+        return match.group(1)
+    
+    if '/' in url and ' ' not in url and '://' not in url:
+        return url
+    
+    return url
+
+def download_readme_directly(model_id: str) -> str:
     """
+    Download the README.md file directly from Hugging Face without using API.
+    
     Download the README.md file directly from Hugging Face without using API.
     
     Parameters
@@ -75,11 +125,35 @@ def download_readme_directly(model_id: str) -> str:
     model_id : str
         The Hugging Face model identifier.
         
+        The Hugging Face model identifier.
+        
     Returns
     -------
     str
         The content of the README.md file, or empty string if not found.
+        The content of the README.md file, or empty string if not found.
     """
+    try:
+        # Try raw content first (most reliable)
+        raw_url = f"https://huggingface.co/{model_id}/raw/main/README.md"
+        response = requests.get(raw_url, timeout=10)
+        
+        if response.status_code == 200:
+            return response.text
+        
+        # Try alternative URLs
+        alternative_urls = [
+            f"https://huggingface.co/{model_id}/resolve/main/README.md",
+            f"https://huggingface.co/{model_id}/blob/main/README.md",
+        ]
+        
+        for url in alternative_urls:
+            response = requests.get(url, timeout=10)
+            if response.status_code == 200:
+                return response.text
+                
+        return ""
+        
     try:
         # Try raw content first (most reliable)
         raw_url = f"https://huggingface.co/{model_id}/raw/main/README.md"
@@ -104,9 +178,14 @@ def download_readme_directly(model_id: str) -> str:
     except Exception as e:
         print(f"Error downloading README for {model_id}: {e}")
         return ""
+        print(f"Error downloading README for {model_id}: {e}")
+        return ""
 
 def extract_license_section(readme_content: str) -> str:
+def extract_license_section(readme_content: str) -> str:
     """
+    Extract the license section from README content.
+    
     Extract the license section from README content.
     
     Parameters
@@ -114,8 +193,13 @@ def extract_license_section(readme_content: str) -> str:
     readme_content : str
         The content of the README.md file.
         
+    readme_content : str
+        The content of the README.md file.
+        
     Returns
     -------
+    str
+        The license section text, or empty string if not found.
     str
         The license section text, or empty string if not found.
     """
@@ -139,7 +223,29 @@ def extract_license_section(readme_content: str) -> str:
     return ""
 
 def analyze_license_text(license_text: str) -> float:
+    if not readme_content:
+        return ""
+    
+    # Look for license section using header pattern
+    license_match = LICENSE_SECTION_PATTERN.search(readme_content)
+    if license_match:
+        return license_match.group(1).strip()
+    
+    # Fallback: look for any line containing "license" and take surrounding context
+    lines = readme_content.split('\n')
+    for i, line in enumerate(lines):
+        if re.search(r'licen[cs]e', line, re.IGNORECASE):
+            # Get the line and some context
+            start = max(0, i - 2)
+            end = min(len(lines), i + 5)
+            return '\n'.join(lines[start:end])
+    
+    return ""
+
+def analyze_license_text(license_text: str) -> float:
     """
+    Analyze license text and return compatibility score.
+    
     Analyze license text and return compatibility score.
     
     Parameters
@@ -147,8 +253,12 @@ def analyze_license_text(license_text: str) -> float:
     license_text : str
         The license text to analyze.
         
+        The license text to analyze.
+        
     Returns
     -------
+    float
+        License score: 1.0 (compatible), 0.0 (incompatible), 0.5 (ambiguous)
     float
         License score: 1.0 (compatible), 0.0 (incompatible), 0.5 (ambiguous)
     """
@@ -242,9 +352,13 @@ def get_detailed_license_score(model_input) -> Dict[str, float]:
     ----------
     model_input : str or dict
         The Hugging Face model identifier or model data.
+    model_input : str or dict
+        The Hugging Face model identifier or model data.
 
     Returns
     -------
+    Dict[str, float]
+        Dictionary containing license score and latency in milliseconds.
     Dict[str, float]
         Dictionary containing license score and latency in milliseconds.
     """
