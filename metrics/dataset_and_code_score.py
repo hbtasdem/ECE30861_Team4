@@ -1,77 +1,101 @@
+# If the dataset used for training and benchmarking is well documented, 
+#    along with any example code
 import requests
 import time
+import os
 
 """
-Fetches the dataset card (README.md) from Hugging Face.
+Use Purdue GenAI Studio to measure dataset documentation.
 
 Parameters
 ----------
-dataset_url : str
-    Full Hugging Face dataset URL.
+prompt : str
+    Prompt with the dataset URL.
 
 Returns
 -------
 string
-    README text
+    Response from LLM. Should be just a float in string format
 """
-def fetch_dataset_card(dataset_url: str) -> dict:
-    dataset_id = dataset_url.split("datasets/")[1].strip("/")
-    raw_url = f"https://huggingface.co/datasets/{dataset_id}/raw/main/README.md"
+def query_genai_studio(prompt: str) -> str:
+    # get api key from environment variable
+    api_key = os.environ.get("GEN_AI_STUDIO_API_KEY")
+    if not api_key:
+        print("Error: GEN_AI_STUDIO_API_KEY environment variable not found")
 
-    # Fetch the README
-    resp = requests.get(raw_url)
-    if resp.status_code == 200:
-        return resp.text
+    url = "https://genai.rcac.purdue.edu/api/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    body = {
+        "model": "llama3.1:latest",
+        "messages": [{"role": "user", "content": prompt}],
+        "stream": False
+    }
 
+    response = requests.post(url, headers=headers, json=body)
+    if response.status_code != 200:
+        raise Exception(f"GenAI Studio API error: {response.status_code}, {response.text}")
+
+    data = response.json()
+    # OpenAI-style completion
+    return data["choices"][0]["message"]["content"]
 
 """
-    Indicates if the dataset used for training and benchmarking
-    is well documented, along with any example code.
+Indicates if the dataset used for training and benchmarking
+is well documented, along with any example code.
 
-    Parameters
-    ----------
-    code_link :   string
-    dataset_link: string
+Parameters
+----------
+code_url :   string
+    Example code url
+dataset_url: string
+    Dataset url
 
-    Returns
-    -------
-    float
-        Score in range 0 (bad) - 1 (good)
-    float
-        latency of metric in seconds
+Returns
+-------
+tuple[float,float]
+float
+    Score in range 0 (bad) - 1 (good)
+float
+    latency of metric in seconds
 """
-# def dataset_and_code_score(code_link, dataset_link):
-def dataset_and_code_score(code_link, dataset_link):
-
+def dataset_and_code_score(code_url: str, dataset_url: str) -> tuple[float,float]:
     # start latency timer 
     start = time.time()
 
-    # Max score = 5
-    # Each worth +1 score:
     # Code, Dataset sources, uses, data collection and processing, bias
+    # half of score is code exists 
+    # half of score is AI assessment of dataset documentation
     score = 0
-    max_score = 5
 
     # Assume if no dataset or code link given, then it doesn't exist
-    if code_link:
-        score += 1
+    if code_url:
+        score += 0.5
 
-    if dataset_link:
-        dataset_card = fetch_dataset_card(dataset_link) 
-        # Dataset sources
-        if any(key in dataset_card for key in ["source", "sources"]):
-            score += 1
-        # Uses
-        if any(key in dataset_card for key in ["uses", "usage", "use case"]):
-            score += 1
-        # Data collection and processing
-        if any(key in dataset_card for key in ["creators", "split","collection","curation"]):
-            score += 1
-        # Bias / ethical considerations
-        if any(key in dataset_card for key in ["bias", "considerations"]):
-            score += 1
-
-    score = score / max_score
+    # Use AI to parse Dataset url based on this Piazza post:
+    #   "Yes you are suppose to use GenAI to help parse the information from the dataset link"
+    if dataset_url:
+        prompt = ( f"Analyze the following dataset url to measure if the dataset used for training"
+                   f"and benchmarking is well documented. This is a dataset used for a huggingface model."
+                   f"Dataset URL:\n{dataset_url}"
+                   f"Return a score between 0 and 1. I am using this in code, so do not return ANYTHING"
+                   f"but the float score. NO EXPLANATION. NOTHING BUT A FLOAT BETWEEN 0 AND 1.")
+        valid_llm_output = False
+        while valid_llm_output == False:
+            llm_ouput = query_genai_studio(prompt)
+            # Get float score from string
+            try:
+                llm_score = float(llm_ouput.strip())
+                if (llm_score >= 0) and (llm_score <= 1):
+                    valid_llm_output = True
+                    score += llm_score * 0.5
+                else:
+                    print("Invalid llm output. Retrying.")
+            except:
+                print("Invalid llm output. Retrying.")
+        
     end = time.time()
     latency = end - start
 
@@ -80,8 +104,8 @@ def dataset_and_code_score(code_link, dataset_link):
 # UNIT TEST
 class Test_datasetandcodescore:
     def testbert(self):
-        code_link = "https://github.com/google-research/bert"
-        dataset_link = "https://huggingface.co/datasets/bookcorpus/bookcorpus"
-        score,latency = dataset_and_code_score(code_link, dataset_link)
+        code_url = "https://github.com/google-research/bert"
+        dataset_url = "https://huggingface.co/datasets/bookcorpus/bookcorpus"
+        score,latency = dataset_and_code_score(code_url, dataset_url)
         assert (score == 1)
     

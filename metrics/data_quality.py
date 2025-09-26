@@ -12,10 +12,10 @@ pip3 install datasets
 Try #1: Check a list of completeness keywords in the card_data and readme, not an ideal indicator of completeness
 Try #2: Use pandas isnull to check if there's a missing value in the dataset
 '''
-def complete_checker(api_info: str, readme: str):
+def complete_checker(api_info, readme):
     
     from urllib.parse import urlparse
-    
+    import requests as rq
     complete_score = 0.0
     
     
@@ -38,9 +38,9 @@ def complete_checker(api_info: str, readme: str):
     check2 = sum(1 for item in complete_kw if item in readme)
     checklist = check1 + check2
     
-    print(card_data)
+    # print(card_data)
     # print(readme)
-    print(checklist)
+    # print(checklist)
     
    
     if checklist >= 7: 
@@ -190,6 +190,8 @@ data_quality_score : int
         - relevance -> checks the # of days since the model created, weight: 0.3x
 '''
 def data_quality(api_info, readme):
+    import time
+    start = time.time()
     
     data_quality_score = 0.0
     
@@ -199,5 +201,8 @@ def data_quality(api_info, readme):
     relevance = relevance_checker(api_info)
     
     data_quality_score = (complete * 0.3 + correct * 0.2 + coverage * 0.2 + relevance * 0.3)
+
+    end = time.time()
+    latency = end - start
     
-    return data_quality_score
+    return data_quality_score, latency

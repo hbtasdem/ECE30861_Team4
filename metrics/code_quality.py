@@ -42,7 +42,7 @@ def code_quality_calc(model_info: str, code_info: str, model_readme: str, code_r
     else:
         len_score = 0.1
         
-    print("len:", len_score) # debug
+    # print("len:", len_score) # debug
     
     # reliability check based on type
     if type == 'MODEL':
@@ -58,7 +58,7 @@ def code_quality_calc(model_info: str, code_info: str, model_readme: str, code_r
         else:
             pop_score = 0.1
             
-        print("pop:", pop_score) 
+        # print("pop:", pop_score) 
     
     elif type == 'CODE': 
         stars = code_info.get('stargazers_count', 0)
@@ -74,7 +74,7 @@ def code_quality_calc(model_info: str, code_info: str, model_readme: str, code_r
         else:
             pop_score = 0.1
         
-        print("pop:", pop_score) 
+        # print("pop:", pop_score) 
     
     # test keywords from readme
     testability_indicators = ['test', 'tested', 'testing', 'pytest', 'unittest', 'unit test', 'ci', 'continuous integration']
@@ -82,11 +82,11 @@ def code_quality_calc(model_info: str, code_info: str, model_readme: str, code_r
     test_score = min(test_mentions / 3, 1)  # 3 keywords = full points
     
     code_quality_score = min(len_score * 0.4 + pop_score * 0.4 + test_score * 0.2, 1)
-    print("code:", code_quality_score)
+    # print("code:", code_quality_score)
     end = time.time()
     
     latency = end - start
-    print(latency)
+    # print(latency)
     return code_quality_score, latency
 
 
