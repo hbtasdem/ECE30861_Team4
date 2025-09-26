@@ -8,11 +8,13 @@ from metrics.bus_factor import bus_factor
 from metrics.ramp_up_time import ramp_up_time
 from metrics.license import get_license_score
 from print_metrics import print_model_evaluation
+import logger
 
 import time
 
 def main(model_info, model_readme, raw_model_url, code_info, code_readme, raw_dataset_url):
     start = time.time()
+    logger.info("Begin processing metrics.")
     
     data_quality_score, dq_latency = data_quality(model_info, model_readme)
     code_quality_score, cq_latency = code_quality(model_info, code_info, model_readme, code_readme)
