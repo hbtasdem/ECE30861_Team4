@@ -22,11 +22,11 @@ def calculate_api_complexity_score(api_info) -> float:
     score = 0.5  
     if pipeline_tag: 
         if pipeline_tag in {"text-classification", "translation", "summarization", "fill-mask"}:
-            score = 0.5
+            score = 0.8
         elif pipeline_tag in {"token-classification", "question-answering"}:
-            score = 0.4
+            score = 0.7
         elif pipeline_tag in {"text-generation", "image-classification"}:
-            score = 0.3
+            score = 0.5
         elif pipeline_tag is None:
             score = 0.2
     
@@ -176,8 +176,8 @@ def ramp_up_time(api_info : dict) -> float:
 
     ramp_up_time_metric_score = (0.25 * api_complexity_score + 
              0.35 * documentation_score + 
-             0.3 * community_support_score + 
-             0.1 * quick_start_availability_score)
+             0.35 * community_support_score + 
+             0.05 * quick_start_availability_score)
     
     downloads = api_info.get("downloads", 0)
     if downloads < 50:  # small/experimental model
