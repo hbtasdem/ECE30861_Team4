@@ -3,6 +3,7 @@ import requests as rq
 import re
 import sys
 import metric
+import os
 
 """
 If no dataset in input line, see if model was trained on
@@ -39,7 +40,12 @@ Returns
 -------
     None
 '''    
-def main():    
+def main():   
+
+    # invalid git token case
+    if "GITHUB_TOKEN" not in os.environ:
+        sys.exit(1)
+
     model_readme = ""
     dataset_readme = ""
     code_readme = ""
