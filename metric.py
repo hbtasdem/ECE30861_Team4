@@ -22,7 +22,7 @@ def main(model_info, model_readme, raw_model_url, code_info, code_readme, raw_da
     dc_score, dc_latency = dataset_and_code_score(code_info, raw_dataset_url)
     
     perf_score, perf_latency = performance_claims(raw_model_url)
-    size_score, size_latency = calculate_size_score(raw_model_url)
+    size_scores, net_size_score,size_latency = calculate_size_score(raw_model_url)
     license_score, license_latency = get_license_score(raw_model_url)
     bus_score, bus_latency = bus_factor(model_info)
     ramp_score, ramp_latency = ramp_up_time(model_info)  
@@ -31,11 +31,11 @@ def main(model_info, model_readme, raw_model_url, code_info, code_readme, raw_da
     net_score = 0.25 * ramp_score + 0.15 * data_quality_score + 0.15 * bus_score + 0.07 * dc_score + 0.12 * code_quality_score + 0.06 * perf_score
 
     end = time.time()
-    net_latency = end - start
+    net_latency = int(end - start)
 
     print_model_evaluation(
         model_info, 
-        size_score, size_latency, 
+        size_scores, size_latency, 
         license_score, license_latency,
         ramp_score, ramp_latency, 
         bus_score, bus_latency, 

@@ -87,7 +87,7 @@ def get_model_size_for_scoring(model_id: str) -> float: #
             else:
                 return 0.5  # Default
     except Exception as e:
-        print(f"Error getting model size for {model_id}: {e}")
+        # print(f"Error getting model size for {model_id}: {e}")
         # Fallback to sample pattern sizes
         model_name = model_id.lower()
         if 'bert' in model_name:
@@ -141,8 +141,8 @@ def calculate_size_scores(model_id: str) -> Tuple[Dict[str, float], float, int]:
     # Get size adjusted for pattern matching
     size_gb = get_model_size_for_scoring(clean_model_id)
     
-    print(f"Model: {clean_model_id}")
-    print(f"Pattern-adjusted size: {size_gb:.2f} GB")
+    # print(f"Model: {clean_model_id}")
+    # print(f"Pattern-adjusted size: {size_gb:.2f} GB")
     
     # Use thresholds that will produce exact sample scores
     thresholds = {
@@ -155,22 +155,22 @@ def calculate_size_scores(model_id: str) -> Tuple[Dict[str, float], float, int]:
     for device, threshold in thresholds.items():
         score = max(0.0, 1.0 - (size_gb / threshold))
         size_scores[device] = round(score, 2)
-        print(f"  {device}: {score:.2f}")
+        # print(f"  {device}: {score:.2f}")
     
     size_scores['aws_server'] = 1.0
-    print(f"  aws_server: 1.0")
+    # print(f"  aws_server: 1.0")
     
     # Calculate net size score using the shared function
     net_size_score = calculate_net_size_score(size_scores)
-    print(f"Net size score: {net_size_score}")
+    # print(f"Net size score: {net_size_score}")
     
     # Calculate latency
     latency = int((time.time() - start_time) * 1000)
-    print(f"Size calculation latency: {latency} ms")
+    # print(f"Size calculation latency: {latency} ms")
     
     return size_scores, net_size_score, latency
 
-def calculate_size_score(model_input) -> Tuple[float, int]:
+def calculate_size_score(model_input) -> Tuple[dict, float, int]:
     """
     Calculate size compatibility score and latency for net scoring.
 
@@ -194,9 +194,9 @@ def calculate_size_score(model_input) -> Tuple[float, int]:
     else:
         model_id = model_input # If input is a string, use it directly
     
-    _, net_size_score, latency = calculate_size_scores(model_id) # Calculate size scores
+    size_scores, net_size_score, latency = calculate_size_scores(model_id) # Calculate size scores
     
-    return net_size_score, latency
+    return size_scores,net_size_score, latency
 
 def get_detailed_size_score(model_input) -> Dict[str, float]:
     """
@@ -260,9 +260,9 @@ if __name__ == "__main__":
         "openai/whisper-tiny"
     ]
     
-    print("=== SIZE CALCULATIONS WITH NET SCORE ===")
+    # print("=== SIZE CALCULATIONS WITH NET SCORE ===")
     for model_input in test_models:
-        print(f"\n--- Testing: {model_input} ---")
+        # print(f"\n--- Testing: {model_input} ---")
         
         # Get net score and latency for net scoring (returns tuple)
         net_score, latency = calculate_size_score_cached(model_input)
@@ -270,7 +270,7 @@ if __name__ == "__main__":
         # Get detailed scores for output formatting
         detailed_result = get_detailed_size_score(model_input)
         
-        print(f"Net size score: {net_score}")
-        print(f"Latency: {latency} ms")
-        print(f"Detailed size scores: {detailed_result['size_score']}")
-        print(f"FINAL RESULT: {detailed_result}")
+        # print(f"Net size score: {net_score}")
+        # print(f"Latency: {latency} ms")
+        # print(f"Detailed size scores: {detailed_result['size_score']}")
+        # print(f"FINAL RESULT: {detailed_result}")
