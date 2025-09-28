@@ -69,21 +69,8 @@ def calculate_contributor_diversity_score(api_info) -> float:
         Contributor diversity score (0-1)
     """
     num_contributors = len(api_info.get('spaces', []))
-
-    if num_contributors == 0 or num_contributors == 1: 
-        score = 0
-    elif num_contributors == 2 or num_contributors == 3: 
-        score = 0.2
-    elif num_contributors == 4 or num_contributors == 5: 
-        score = 0.4
-    elif num_contributors == 6 or num_contributors == 7: 
-        score = 0.6
-    elif num_contributors == 8 or num_contributors == 9: 
-        score = 0.8
-    else: 
-        score = 1
     
-    return score
+    return min (num_contributors / 10.0, 1.0)
 
 
 def calculate_org_backing_score(api_info) -> float:
@@ -104,8 +91,10 @@ def calculate_org_backing_score(api_info) -> float:
     KNOWN_ORGS = {"google", "meta", "microsoft", "openai", "apple", "ibm", "huggingface"}
 
     author = api_info.get("author", "").lower()
-    if author in KNOWN_ORGS: 
+    if any(org in author for org in KNOWN_ORGS): 
         return 1
+    elif author: 
+        return 0.5
     else: 
         return 0
 
@@ -136,8 +125,8 @@ def bus_factor(api_info) -> float:
     org_backing_score = calculate_org_backing_score(api_info)
 
     bus_factor_metric_score = (0.55 * contributor_diversity_score + 
-             0.35 * active_maintenance_score + 
-             0.1 * org_backing_score)
+             0.2 * active_maintenance_score + 
+             0.25 * org_backing_score)
     
     # end latency timer 
     end = time.time()

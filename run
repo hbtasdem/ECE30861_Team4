@@ -64,7 +64,7 @@ elif [ "$COMMAND" == "test" ]; then
 # ./run URL_FILE 
 #---------------------
 elif [ -f "$COMMAND" ]; then
-    echo "Calling Python main to process URLs..."
+    # echo "Calling Python main to process URLs..."
     python3 input.py "$COMMAND"
     exit 0
 
