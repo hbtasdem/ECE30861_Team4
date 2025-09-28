@@ -14,6 +14,11 @@ from typing import Dict, Tuple
 import time
 from huggingface_hub import HfApi
 import re
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 # Constants for weights (defined once to avoid repetition)
 SIZE_WEIGHTS = {
@@ -87,7 +92,7 @@ def get_model_size_for_scoring(model_id: str) -> float: #
             else:
                 return 0.5  # Default
     except Exception as e:
-        # print(f"Error getting model size for {model_id}: {e}")
+        logger.error(f"Error getting model size for {model_id}: {e}")
         # Fallback to sample pattern sizes
         model_name = model_id.lower()
         if 'bert' in model_name:
@@ -141,8 +146,8 @@ def calculate_size_scores(model_id: str) -> Tuple[Dict[str, float], float, int]:
     # Get size adjusted for pattern matching
     size_gb = get_model_size_for_scoring(clean_model_id)
     
-    # print(f"Model: {clean_model_id}")
-    # print(f"Pattern-adjusted size: {size_gb:.2f} GB")
+    logger.info(f"Model: {clean_model_id}")
+    logger.info(f"Pattern-adjusted size: {size_gb:.2f} GB")
     
     # Use thresholds that will produce exact sample scores
     thresholds = {
@@ -155,18 +160,18 @@ def calculate_size_scores(model_id: str) -> Tuple[Dict[str, float], float, int]:
     for device, threshold in thresholds.items():
         score = max(0.0, 1.0 - (size_gb / threshold))
         size_scores[device] = round(score, 2)
-        # print(f"  {device}: {score:.2f}")
+        logger.info(f"  {device}: {score:.2f}")
     
     size_scores['aws_server'] = 1.0
-    # print(f"  aws_server: 1.0")
+    logger.info(f"  aws_server: 1.0")
     
     # Calculate net size score using the shared function
     net_size_score = calculate_net_size_score(size_scores)
-    # print(f"Net size score: {net_size_score}")
+    logger.info(f"Net size score: {net_size_score}")
     
     # Calculate latency
     latency = int((time.time() - start_time) * 1000)
-    # print(f"Size calculation latency: {latency} ms")
+    logger.info(f"Size calculation latency: {latency} ms")
     
     return size_scores, net_size_score, latency
 
@@ -247,8 +252,10 @@ def calculate_size_score_cached(model_input) -> Tuple[float, int]:
         model_id = model_input
     
     if model_id in _size_cache: # If result is cached
+        logger.debug(f"Using cached size result for {model_id}")
         return _size_cache[model_id]
     
+    logger.info(f"Calculating size score for {model_id}")
     result = calculate_size_score(model_input)
     _size_cache[model_id] = result
     return result
@@ -260,17 +267,21 @@ if __name__ == "__main__":
         "openai/whisper-tiny"
     ]
     
-    # print("=== SIZE CALCULATIONS WITH NET SCORE ===")
+    logger.info("=== SIZE CALCULATIONS WITH NET SCORE ===")
     for model_input in test_models:
-        # print(f"\n--- Testing: {model_input} ---")
+        logger.info(f"--- Testing: {model_input} ---")
         
-        # Get net score and latency for net scoring (returns tuple)
-        net_score, latency = calculate_size_score_cached(model_input)
+        # Calculate ONCE and use the results for both outputs
+        size_scores, net_size_score, latency = calculate_size_scores(model_input)
         
-        # Get detailed scores for output formatting
-        detailed_result = get_detailed_size_score(model_input)
+        # Use the already calculated values
+        logger.info(f"Net size score: {net_size_score}")
+        logger.info(f"Latency: {latency} ms")
+        logger.info(f"Detailed size scores: {size_scores}")
         
-        # print(f"Net size score: {net_score}")
-        # print(f"Latency: {latency} ms")
-        # print(f"Detailed size scores: {detailed_result['size_score']}")
-        # print(f"FINAL RESULT: {detailed_result}")
+        # Create the final result from the calculated values
+        final_result = {
+            'size_score': size_scores,
+            'size_score_latency': latency
+        }
+        logger.info(f"FINAL RESULT: {final_result}")
