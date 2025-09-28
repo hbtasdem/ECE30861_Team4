@@ -1,4 +1,4 @@
-# from parse_categories import masterScoring
+import logger
 import time
 
 def calculate_api_complexity_score(api_info) -> float: 
@@ -166,8 +166,11 @@ def ramp_up_time(api_info : dict) -> float:
     float
         Ramp-up time metric score (0-1)
     """
+
+    logger.info(" Calculating ramp up time metric")
+
     # start latency timer 
-    start = time.time()
+    start = time.perf_counter()
 
     api_complexity_score = calculate_api_complexity_score(api_info)
     documentation_score = calculate_documentation_score(api_info)
@@ -182,10 +185,10 @@ def ramp_up_time(api_info : dict) -> float:
     downloads = api_info.get("downloads", 0)
     if downloads < 50:  # small/experimental model
         ramp_up_time_metric_score *= 0.4
-    
+ 
     # end latency timer 
-    end = time.time()
+    end = time.perf_counter()
 
-    latency = end - start 
+    latency = (end - start) * 1000
     
     return round(ramp_up_time_metric_score, 2), latency 

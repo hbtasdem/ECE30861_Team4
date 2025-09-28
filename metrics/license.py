@@ -14,6 +14,7 @@ import requests
 from urllib.parse import urljoin
 import logger  # Import custom logger like performance_claims.py
 
+
 # Pre-compiled regex for better performance
 URL_PATTERN = re.compile(r'huggingface\.co/([^/]+/[^/?]+)')
 LICENSE_HEADER_PATTERN = re.compile(r'^#+\s*licen[cs]e\s*$', re.IGNORECASE | re.MULTILINE)
@@ -308,10 +309,12 @@ def get_license_score_cached(model_input) -> Tuple[float, int]:
         model_id = model_input
     
     if model_id in _license_cache:
-        logger.info(f"Using cached license result for {model_id}")  # CHANGED: Use logger.info
+
+
+        logger.debug(f"Using cached license result for {model_id}")
         return _license_cache[model_id]
     
-    logger.info(f"Calculating license score for {model_id}")  # CHANGED: Use logger.info
+    logger.info(f"Calculating license score for {model_id}")
     result = get_license_score(model_input)
     _license_cache[model_id] = result
     return result
@@ -337,3 +340,4 @@ if __name__ == "__main__":
         logger.info(f"License score: {score}")  #Use logger.info
         logger.info(f"License latency: {latency} ms")  # Use logger.# info
         logger.info(f"FINAL RESULT: {detailed_result}")  # Use logger.info
+

@@ -49,7 +49,7 @@ def extract_model_id_from_url(url: str) -> str:
     
     return url
 
-def get_model_size_for_scoring(model_id: str) -> float:
+def get_model_size_for_scoring(model_id: str) -> float: # 
     """
     Get model size adjusted to produce scores matching sample output patterns.
 
@@ -137,7 +137,7 @@ def calculate_size_scores(model_id: str) -> Tuple[Dict[str, float], float, int]:
     """
     start_time = time.time() # Start timing
     
-    clean_model_id = extract_model_id_from_url(model_id)
+    clean_model_id = extract_model_id_from_url(model_id) # 
     
     # Get size adjusted for pattern matching
     size_gb = get_model_size_for_scoring(clean_model_id)
@@ -253,6 +253,7 @@ def calculate_size_score_cached(model_input) -> Tuple[dict, float, int]:
         return _size_cache[model_id]
     
     logger.info(f"Calculating size score for {model_id}")  # CHANGED: Use logger.info
+
     result = calculate_size_score(model_input)
     _size_cache[model_id] = result
     return result
@@ -264,17 +265,19 @@ if __name__ == "__main__":
         "openai/whisper-tiny"
     ]
     
-    logger.info("=== SIZE CALCULATIONS WITH NET SCORE ===")  # CHANGED: Use logger.info
+
+    logger.info("=== SIZE CALCULATIONS WITH NET SCORE ===")
     for model_input in test_models:
-        logger.info(f"--- Testing: {model_input} ---")  # CHANGED: Use logger.info
+        logger.info(f"--- Testing: {model_input} ---")
         
         # Calculate ONCE and use the results for both outputs
         size_scores, net_size_score, latency = calculate_size_scores(model_input)
         
         # Use the already calculated values
-        logger.info(f"Net size score: {net_size_score}")  # CHANGED: Use logger.info
-        logger.info(f"Latency: {latency} ms")  # CHANGED: Use logger.info
-        logger.info(f"Detailed size scores: {size_scores}")  # CHANGED: Use logger.info
+        logger.info(f"Net size score: {net_size_score}")
+        logger.info(f"Latency: {latency} ms")
+        logger.info(f"Detailed size scores: {size_scores}")
+
         
         # Create the final result from the calculated values
         final_result = {
@@ -282,3 +285,4 @@ if __name__ == "__main__":
             'size_score_latency': latency
         }
         logger.info(f"FINAL RESULT: {final_result}") # Use logger.info
+

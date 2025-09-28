@@ -1,4 +1,6 @@
 # from parse_categories import masterScoring
+import logger
+
 from datetime import datetime, timezone
 import time
 
@@ -20,7 +22,7 @@ def calculate_active_maintenance_score(api_info) -> float:
     last_modified = api_info.get("lastModified")
 
     if not created_at or not last_modified:
-        return 0
+        logger.debug("API Info has no information about dates.")
     
     created_date = datetime.fromisoformat(created_at.replace("Z", "+00:00"))
     modified_date = datetime.fromisoformat(last_modified.replace("Z", "+00:00"))
@@ -116,9 +118,11 @@ def bus_factor(api_info) -> float:
     float
         Bus Factor metric score (0-1)
     """
+
+    logger.info(" Calculating bus factor metric")
     
     # start latency timer 
-    start = time.time()
+    start = time.perf_counter()
 
     contributor_diversity_score = calculate_contributor_diversity_score(api_info)
     active_maintenance_score = calculate_active_maintenance_score(api_info)
@@ -129,8 +133,8 @@ def bus_factor(api_info) -> float:
              0.25 * org_backing_score)
     
     # end latency timer 
-    end = time.time()
+    end = time.perf_counter()
 
-    latency = end - start 
+    latency = (end - start) * 1000
 
     return round(bus_factor_metric_score, 2), latency
