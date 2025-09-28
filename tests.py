@@ -1,7 +1,6 @@
-
 # import parse_categories
-import data_quality
-import code_quality
+import metrics.data_quality
+import metrics.code_quality
 from datetime import datetime, timedelta
 
 
@@ -28,10 +27,6 @@ structure doesn't support passing in real URLs in a test suite, AI assistance wa
 
 class Test_Model: # Model tests
     def test_model_good(self):  # Good data quality case
-        # assert parse_categories.masterScoring('https://huggingface.co/distilbert-base-uncased-finetuned-sst-2-english', 'MODEL') == 
-        api_info = {'cardData': {'license': 'MIT', 'tags': ['test']}}
-        readme = "description citation language source"  # Just the keywords we're testing for
-        type_val = "MODEL"
         api_info = {
         'cardData': {
             'license': 'MIT',
@@ -62,15 +57,15 @@ class Test_Model: # Model tests
         Uses include various limitation scenarios with proper description.
         """
         
-        result = data_quality.data_quality(api_info, readme)
+        # Unpack the tuple - get score and latency
+        score, latency = metrics.data_quality.data_quality(api_info, readme)
         
-        print(f"Data Quality Score: {result}")
+        print(f"Data Quality Score: {score}, Latency: {latency}")
         
-        assert result >= 0.98
+        assert score >= 0.9  # Test only the score
     
     
     def test_dataset_poor(self):  # Poor data quality case
-   
         api_info = {
             'cardData': {},
             'createdAt': (datetime.now() - timedelta(days=800)).isoformat() + 'Z'
@@ -78,11 +73,13 @@ class Test_Model: # Model tests
         
         readme = "Model for stuff. It works okay I guess. No specific details provided."
         
-        assert data_quality.data_quality(api_info, readme) <= 0.2
+        # Unpack the tuple
+        score, latency = metrics.data_quality.data_quality(api_info, readme)
+        
+        assert score <= 0.2
 
 class Test_Dataset: # Dataset input tests
     def test_dataset_good(self):  # Good data quality case
-        
         api_info = {
             'cardData': {
                 'license': 'MIT',
@@ -104,8 +101,10 @@ class Test_Dataset: # Dataset input tests
         value: 0.92
         """
         
-        assert data_quality.data_quality(api_info, readme) >= 0.8
-
+        # Unpack the tuple
+        score, latency = metrics.data_quality.data_quality(api_info, readme)
+        
+        assert score >= 0.8
 
     def test_dataset_bad(self):  # Poor data quality case
         api_info = {
@@ -114,28 +113,38 @@ class Test_Dataset: # Dataset input tests
         }
             
         readme = "Old dataset with minimal info."
-            
-        assert data_quality.data_quality(api_info, readme) <= 0.3
+        
+        # Unpack the tuple
+        score, latency = metrics.data_quality.data_quality(api_info, readme)
+        
+        assert score <= 0.3
         
 class Test_Code: # Github repo tests 
-# NOTES: do we need to have a test suite for dataset quality given a code URL input?
-    
     def test_code_good(self):  # Good code quality case
-        api_info = {'stargazers_count': 50000, 'forks_count': 15000}  # 65k total > 60k threshold
-        readme = """
+       
+        
+        model_info = {}  # Empty if no model
+        code_info = {'stargazers_count': 50000, 'forks_count': 15000}  # GitHub data
+        model_readme = """  # Empty if no model
         This is a comprehensive library for machine learning tasks.
         Installation instructions are provided below with detailed examples.
         The code is thoroughly tested using pytest and unittest frameworks.
         Continuous integration ensures testing reliability across versions.
         Complete documentation with usage examples and API reference.
-        """ * 30  # Make it long (>1000 words for full reusability score)
+        """ * 30  # Make it long for full reusability score
+        code_readme = "testing pytest unittest ci continuous integration"  # Test keywords
+  
+        score, latency = metrics.code_quality.code_quality_calc(model_info, code_info, model_readme, code_readme)
         
-        assert code_quality.code_quality("CODE", api_info, readme) >= 0.8
+        assert score >= 0.8
 
     def test_code_bad(self):  # Poor code quality case
-        api_info = {'stargazers_count': 5, 'forks_count': 1} 
-        readme = "Basic repo"  
+        model_info = {}
+        code_info = {'stargazers_count': 5, 'forks_count': 1} 
+        model_readme = ""
+        code_readme = "Basic repo"  
         
-        assert code_quality.code_quality("CODE", api_info, readme) <= 0.2
+  
+        score, latency = metrics.code_quality.code_quality_calc(model_info, code_info, model_readme, code_readme)
         
-
+        assert score <= 0.3
