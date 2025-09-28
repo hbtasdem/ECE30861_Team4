@@ -7,7 +7,10 @@
 # Default log verbosity is 0
 import os
 import sys
+from dotenv import load_dotenv
 
+
+load_dotenv()
 # read env vars once
 LOG_FILE = os.environ.get("LOG_FILE")
 LOG_LEVEL = int(os.environ.get("LOG_LEVEL", 0)) # default to 0
