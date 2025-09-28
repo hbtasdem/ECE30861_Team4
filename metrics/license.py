@@ -15,7 +15,7 @@ from urllib.parse import urljoin
 import logging
 import os
 
-# Set up logging - FIXED: Use environment variables
+# Set up logging
 log_level = os.getenv('LOG_LEVEL', '0')
 if log_level == '2':
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
