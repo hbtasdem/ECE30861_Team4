@@ -1,4 +1,4 @@
-# from parse_categories import masterScoring
+import logger
 import time
 
 def calculate_api_complexity_score(api_info) -> float: 
@@ -166,6 +166,9 @@ def ramp_up_time(api_info : dict) -> float:
     float
         Ramp-up time metric score (0-1)
     """
+
+    logger.info("Calculating bus factor metric")
+
     # start latency timer 
     start = time.time()
 
