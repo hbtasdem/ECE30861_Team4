@@ -13,76 +13,138 @@ pip3 install datasets
 Try #1: Check a list of completeness keywords in the card_data and readme, not an ideal indicator of completeness
 Try #2: Use pandas isnull to check if there's a missing value in the dataset
 '''
+
 def complete_checker(api_info, readme):
     
-    from urllib.parse import urlparse
-    import requests as rq
-
     logger.debug("Starting completeness check")
     
     card_data = api_info.get('cardData', {})
     
-    #the following list of completeness keywords was created using Claude Sonnet 4
-    complete_kw= {
-    # Essential metadata completeness
-    'license': 'License information present',
-    'description': 'Clear dataset description',
-    'use': 'Uses',
-    'limitation': 'Limitations',
-    'tags': 'Keywords for model categorization',
-    'citation': 'Proper citation information',
-    'source': 'Data source attribution',
-    'language': 'Data languages available'
+    # Expanded completeness indicators - more flexible matching
+    complete_kw = {
+        # Essential metadata completeness
+        'license': ['license', 'apache', 'mit', 'bsd', 'cc', 'gpl'],
+        'description': ['description', 'model', 'pretrained', 'fine-tuned'],
+        'use': ['use', 'usage', 'intended', 'downstream', 'task'],
+        'limitation': ['limitation', 'bias', 'constraint', 'caution', 'note'],
+        'tags': ['tags', 'tag'],
+        'citation': ['citation', 'cite', 'bibtex', 'paper', 'arxiv', 'reference'],
+        'source': ['source', 'data', 'dataset', 'corpus', 'training'],
+        'language': ['language', 'english', 'multilingual', 'en'],
+        'datasets' : ['wikipedia', 'bookcorpus']
     }
     
-    check1 = sum(1 for item in complete_kw if item in card_data)
-    check2 = sum(1 for item in complete_kw if item in readme)
-    checklist = check1 + check2
+    score = 0
+    for category, keywords in complete_kw.items():
+        # Check in card_data first (exact match)
+        if category in card_data:
+            score += 1
+            continue
+        
+        # Check for any of the keywords in readme (flexible matching)
+        if any(keyword.lower() in readme.lower() for keyword in keywords):
+            score += 1
     
-    # print(card_data)
-    # print(readme)
-    # print(checklist)
+    logger.info(f"Completeness keywords found: {score}")
     
-   
-    if checklist >= 7: 
+    # More generous scoring for well-documented models
+    if score >= 6: 
         return 1.0   
-    elif checklist >= 4:
+    elif score >= 4:
+        return 0.7   
+    elif score >= 2:
+        return 0.5  
+    else:
+        return 0.1
+    
+
+def coverage_checker(api_info: str, readme: str):
+    
+    logger.debug("Starting coverage check")
+    
+    # Expanded coverage indicators - include scale/size indicators
+    checked_words = [
+        # Original diversity words
+        'diverse', 'diversity', 'varied', 'variety', 'various', 'different',
+        'heterogeneous', 'mixed', 'multiple', 'range', 'spectrum',
+        'representative', 'represents', 'representative sample', 'cross-section',
+        'reflects', 'mirrors', 'captures', 'encompasses', 'covers',
+        'comprehensive', 'extensive', 'broad', 'wide', 'spanning',
+        'balanced', 'well-balanced', 'evenly distributed', 'uniform',
+        'stratified', 'proportional', 'equal representation', 'fair distribution',
+        
+        # NEW: Scale and corpus size indicators 
+        'large corpus', 'large dataset', 'millions', 'thousands', 'billion',
+        'books', 'wikipedia', 'web', 'internet', 'corpus', 'collection',
+        'unpublished', 'publicly available', 'raw texts', 'unlabeled'
+    ]
+    
+    coverage_count = sum(1 for word in checked_words if word in readme.lower())
+    logger.debug(f"Coverage keywords found: {coverage_count}")
+    
+
+    if coverage_count >= 4:  # Lowered from 5
+        return 1.0
+    elif coverage_count >= 2:  # Lowered from 3  
+        return 0.7
+    elif coverage_count >= 1:
         return 0.5
     else:
-        return 0.1  
+        return 0.2  # Less harsh penalty
 
-
-
-'''
-Correctness
-
-(09/16) Decided to take the correctness metric down as it is impractical to check during run time
-(09/21) Found Accuracy tag in one of the readmes so added a regex expression to extract it in case most models have it
-    (IMP) Will lower the accuracy weight (0.5 -> 0.2) since it might not be a common practice to have accuracy value displayed in readme.
-'''
 def correct_checker(readme: str):
     import re
     
     logger.debug("Starting correctness check")
     
     if not readme:
-        logger.debug("Empty readme provided for correctness check")
         return 0.0
     
+    # Expanded accuracy patterns
     acc_pattern = [
         r'type:\s*accuracy\s*value:\s*([\d.]+)',
         r'accuracy:\s*([\d.]+)',
         r'"accuracy":\s*([\d.]+)',
+        # Look for evaluation results, scores, performance metrics
+        r'score[:\s]+([\d.]+)',
+        r'achieves[^0-9]*([\d.]+)',
+        r'results?[:\s][^0-9]*([\d.]+)',
+        r'performance[^0-9]*([\d.]+)',
+        r'(\d+\.\d+)(?:\s*%?)',  # Any decimal number (be careful with this)
     ]
 
+    # Also look for evaluation tables/sections
+    evaluation_indicators = [
+        'evaluation', 'results', 'performance', 'benchmark', 'glue',
+        'accuracy', 'f1', 'score', 'metric'
+    ]
+    
+
+    eval_mentions = sum(1 for indicator in evaluation_indicators if indicator.lower() in readme.lower())
+    logger.info(f"eval ments found: {eval_mentions}")
+    
     for pattern in acc_pattern:
        match = re.search(pattern, readme, re.IGNORECASE)
        if match:
-           accuracy_val = float(match.group(1))
-           return accuracy_val
-       
-    logger.debug("No accuracy information found")
+           try:
+               accuracy_val = float(match.group(1))
+               logger.info(f"accuracy: {accuracy_val}")
+               if 0 <= accuracy_val <= 1:  # Valid probability
+                   return accuracy_val
+               elif accuracy_val <= 100:  # Percentage
+                   return 1.0
+           except:
+               continue
+    
+    # If no specific accuracy but has evaluation section, give partial credit
+    if eval_mentions >= 3:
+        logger.info(f"Completeness keywords found: {eval_mentions}")
+        return 0.7  # Give credit for thorough evaluation discussion
+    
+    logger.info("No accuracy information found")
+
     return 0.0
+
 '''
 Try #1: treats more data labels = more coverage
 Coverage calculator -> readme content search to analyze coverage
@@ -118,9 +180,9 @@ def coverage_checker(api_info: str, readme: str):
     coverage_count = sum(1 for word in checked_words if word in readme)
     
     # Simple scoring based on coverage word frequency
-    if coverage_count >= 5:
+    if coverage_count >= 10:
         return 1.0  # Highly descriptive of coverage
-    elif coverage_count >= 3:
+    elif coverage_count >= 5:
         return 0.7  # Good coverage description
     elif coverage_count >= 1:
         return 0.5  # Some coverage mentioned
@@ -164,11 +226,12 @@ def relevance_checker(api_info: str):
         
         #categorize relevance based on the number of days passed 
             #might need to change the thresholds depending on the testcases fed, relevance of 1 year might be too ambitious
-        if days_passed > 720: 
-            relevance_score = 0.1
-        elif days_passed > 360:
+            #update: changed
+        if days_passed > 2500: 
+            relevance_score = 0.2
+        elif days_passed > 1500:
             relevance_score = 0.4
-        elif days_passed > 180:
+        elif days_passed > 750:
             relevance_score = 0.7
         else:
             relevance_score = 1.0
