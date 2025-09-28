@@ -14,7 +14,7 @@ from typing import Dict, Tuple
 import time
 from huggingface_hub import HfApi
 import re
-import logger  # CHANGED: Import custom logger
+import logger  #Import custom logger like performance_claims.py
 
 # Constants for weights (defined once to avoid repetition)
 SIZE_WEIGHTS = {
@@ -49,7 +49,7 @@ def extract_model_id_from_url(url: str) -> str:
     
     return url
 
-def get_model_size_for_scoring(model_id: str) -> float: # 
+def get_model_size_for_scoring(model_id: str) -> float:
     """
     Get model size adjusted to produce scores matching sample output patterns.
 
@@ -88,7 +88,7 @@ def get_model_size_for_scoring(model_id: str) -> float: #
             else:
                 return 0.5  # Default
     except Exception as e:
-        logger.error(f"Error getting model size for {model_id}: {e}")
+        logger.info(f"Error getting model size for {model_id}: {e}")  # CHANGED: Use logger.info like performance_claims.py
         # Fallback to sample pattern sizes
         model_name = model_id.lower()
         if 'bert' in model_name:
@@ -137,13 +137,13 @@ def calculate_size_scores(model_id: str) -> Tuple[Dict[str, float], float, int]:
     """
     start_time = time.time() # Start timing
     
-    clean_model_id = extract_model_id_from_url(model_id) # 
+    clean_model_id = extract_model_id_from_url(model_id)
     
     # Get size adjusted for pattern matching
     size_gb = get_model_size_for_scoring(clean_model_id)
     
-    logger.info(f"Model: {clean_model_id}")
-    logger.info(f"Pattern-adjusted size: {size_gb:.2f} GB")
+    logger.info(f"Model: {clean_model_id}")  # CHANGED: Use logger.info
+    logger.info(f"Pattern-adjusted size: {size_gb:.2f} GB")  # CHANGED: Use logger.info
     
     # Use thresholds that will produce exact sample scores
     thresholds = {
@@ -156,18 +156,18 @@ def calculate_size_scores(model_id: str) -> Tuple[Dict[str, float], float, int]:
     for device, threshold in thresholds.items():
         score = max(0.0, 1.0 - (size_gb / threshold))
         size_scores[device] = round(score, 2)
-        logger.info(f"  {device}: {score:.2f}")
+        logger.info(f"  {device}: {score:.2f}")  # CHANGED: Use logger.info
     
     size_scores['aws_server'] = 1.0
-    logger.info(f"  aws_server: 1.0")
+    logger.info(f"  aws_server: 1.0")  # CHANGED: Use logger.info
     
     # Calculate net size score using the shared function
     net_size_score = calculate_net_size_score(size_scores)
-    logger.info(f"Net size score: {net_size_score}")
+    logger.info(f"Net size score: {net_size_score}")  # CHANGED: Use logger.info
     
     # Calculate latency
     latency = int((time.time() - start_time) * 1000)
-    logger.info(f"Size calculation latency: {latency} ms")
+    logger.info(f"Size calculation latency: {latency} ms")  # CHANGED: Use logger.info
     
     return size_scores, net_size_score, latency
 
@@ -249,10 +249,10 @@ def calculate_size_score_cached(model_input) -> Tuple[dict, float, int]:
         model_id = model_input
     
     if model_id in _size_cache: # If result is cached
-        logger.debug(f"Using cached size result for {model_id}")
+        logger.info(f"Using cached size result for {model_id}")  # CHANGED: Use logger.info
         return _size_cache[model_id]
     
-    logger.info(f"Calculating size score for {model_id}")
+    logger.info(f"Calculating size score for {model_id}")  # CHANGED: Use logger.info
     result = calculate_size_score(model_input)
     _size_cache[model_id] = result
     return result
@@ -264,23 +264,21 @@ if __name__ == "__main__":
         "openai/whisper-tiny"
     ]
     
-    logger.info("=== SIZE CALCULATIONS WITH NET SCORE ===")
+    logger.info("=== SIZE CALCULATIONS WITH NET SCORE ===")  # CHANGED: Use logger.info
     for model_input in test_models:
-        logger.info(f"--- Testing: {model_input} ---")
+        logger.info(f"--- Testing: {model_input} ---")  # CHANGED: Use logger.info
         
         # Calculate ONCE and use the results for both outputs
         size_scores, net_size_score, latency = calculate_size_scores(model_input)
         
         # Use the already calculated values
-        logger.info(f"Net size score: {net_size_score}")
-        logger.info(f"Latency: {latency} ms")
-        logger.info(f"Detailed size scores: {size_scores}")
+        logger.info(f"Net size score: {net_size_score}")  # CHANGED: Use logger.info
+        logger.info(f"Latency: {latency} ms")  # CHANGED: Use logger.info
+        logger.info(f"Detailed size scores: {size_scores}")  # CHANGED: Use logger.info
         
         # Create the final result from the calculated values
         final_result = {
             'size_score': size_scores,
             'size_score_latency': latency
         }
-        logger.info(f"FINAL RESULT: {final_result}")
-
-# Weights for net size score calculations
+        logger.info(f"FINAL RESULT: {final_result}") # Use logger.info
