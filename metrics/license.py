@@ -8,14 +8,21 @@ by directly downloading and analyzing README files.
 """
 
 import time
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Union
 import re
 import requests
 from urllib.parse import urljoin
 import logging
+import os
 
-# Set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Set up logging - FIXED: Use environment variables
+log_level = os.getenv('LOG_LEVEL', '0')
+if log_level == '2':
+    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+elif log_level == '1':
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+else:
+    logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # Pre-compiled regex for better performance
@@ -227,7 +234,7 @@ def analyze_license_text(license_text: str) -> float:
             logger.debug("No clear license found - returning 0.0")
             return 0.0
 
-def get_license_score(model_input) -> Tuple[float, int]:
+def get_license_score(model_input: Union[str, Dict]) -> Tuple[float, int]:
     """
     Calculate license compatibility score and latency for net scoring.
 
@@ -258,9 +265,6 @@ def get_license_score(model_input) -> Tuple[float, int]:
     clean_model_id = extract_model_id_from_url(model_id)
     logger.info(f"Calculating license score for: {clean_model_id}")
     
-    # Special handling for known models to match sample outputs
-    model_name = clean_model_id.lower()
-    
     # Download and analyze README for unknown models
     readme_content = download_readme_directly(clean_model_id)
     
@@ -282,7 +286,7 @@ def get_license_score(model_input) -> Tuple[float, int]:
     
     return score, latency
 
-def get_detailed_license_score(model_input) -> Dict[str, float]:
+def get_detailed_license_score(model_input: Union[str, Dict]) -> Dict[str, Union[float, int]]:
     """
     Get detailed license score for output formatting (original functionality).
     
@@ -293,7 +297,7 @@ def get_detailed_license_score(model_input) -> Dict[str, float]:
 
     Returns
     -------
-    Dict[str, float]
+    Dict[str, Union[float, int]]
         Dictionary containing license score and latency in milliseconds.
     """
     score, latency = get_license_score(model_input)
@@ -303,44 +307,44 @@ def get_detailed_license_score(model_input) -> Dict[str, float]:
         'license_latency': latency
     }
 
-_license_cache = {}
-
-def get_license_score_cached(model_input) -> Tuple[float, int]:
+# Simple test function that returns values for terminal testing
+def test_license_calculations() -> Dict[str, any]:
     """
-    Cached version to avoid duplicate calculations.
+    Test function that returns license calculation results for terminal display.
+    
+    Returns
+    -------
+    Dict[str, any]
+        Dictionary containing test results
     """
-    if isinstance(model_input, dict):
-        model_id = model_input.get('model_id') or model_input.get('name') or model_input.get('url', '')
-    else:
-        model_id = model_input
-    
-    if model_id in _license_cache:
-        logger.debug(f"Using cached license result for {model_id}")
-        return _license_cache[model_id]
-    
-    logger.info(f"Calculating license score for {model_id}")
-    result = get_license_score(model_input)
-    _license_cache[model_id] = result
-    return result
-
-if __name__ == "__main__":
     test_models = [
         "google-bert/bert-base-uncased",      # Should find Apache 2.0 → 1.0
         "parvk11/audience_classifier_model",  # Unknown license → 0.0 or 0.5
         "openai/whisper-tiny",                # Should find MIT → 1.0
     ]
     
-    logger.info("=== LICENSE ANALYSIS WITHOUT HUGGING FACE API ===")
+    results = {}
     
-    for model_input in test_models:
-        logger.info(f"--- Testing: {model_input} ---")
+    for model in test_models:
+        print(f"\n=== Testing: {model} ===")
+        score, latency = get_license_score(model)
+        detailed_result = get_detailed_license_score(model)
         
-        # Get score and latency for net scoring (returns tuple)
-        score, latency = get_license_score_cached(model_input)
+        results[model] = {
+            'score': score,
+            'latency_ms': latency,
+            'detailed': detailed_result
+        }
         
-        # Get detailed result for output formatting
-        detailed_result = get_detailed_license_score(model_input)
-        
-        logger.info(f"License score: {score}")
-        logger.info(f"License latency: {latency} ms")
-        logger.info(f"FINAL RESULT: {detailed_result}")
+        print(f"License score: {score}")
+        print(f"Latency: {latency} ms")
+        print(f"Detailed result: {detailed_result}")
+    
+    return results
+
+if __name__ == "__main__":
+    # When run directly, show results in terminal
+    print("=== LICENSE CALCULATOR TEST ===")
+    test_results = test_license_calculations()
+    print(f"\n=== FINAL TEST RESULTS ===")
+    print(test_results)
