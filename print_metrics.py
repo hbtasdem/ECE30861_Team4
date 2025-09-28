@@ -77,27 +77,27 @@ def print_model_evaluation(
     result = {
         "name": name,
         "category": category,
-        "net_score": net_score,
-        "net_score_latency": net_score_latency,
-        "ramp_up_time": ramp_up_time_score,
-        "ramp_up_time_latency": ramp_up_time_latency,
-        "bus_factor": bus_factor_score,
-        "bus_factor_latency": bus_factor_latency,
-        "performance_claims": performance_claims_score,
-        "performance_claims_latency": performance_claims_latency,
-        "license": license_score,
-        "license_latency": license_latency,
+        "net_score": round(net_score,2),
+        "net_score_latency": int(net_score_latency),
+        "ramp_up_time": round(ramp_up_time_score, 2),
+        "ramp_up_time_latency": int(ramp_up_time_latency),
+        "bus_factor": round(bus_factor_score, 2),
+        "bus_factor_latency": int(bus_factor_latency),
+        "performance_claims": round(performance_claims_score, 2),
+        "performance_claims_latency": int(performance_claims_latency),
+        "license": round(license_score, 2),
+        "license_latency": int(license_latency),
         "size_score": size_score,  
-        "size_score_latency": size_latency,
-        "dataset_and_code_score": available_dataset_and_code_score,
-        "dataset_and_code_score_latency": available_dataset_and_code_latency,
-        "dataset_quality": dataset_quality_score,
-        "dataset_quality_latency": dataset_quality_latency,
-        "code_quality": code_quality_score,
-        "code_quality_latency": code_quality_latency,
+        "size_score_latency": int(size_latency),
+        "dataset_and_code_score": round(available_dataset_and_code_score, 2),
+        "dataset_and_code_score_latency": int(available_dataset_and_code_latency),
+        "dataset_quality": round(dataset_quality_score, 2),
+        "dataset_quality_latency": int(dataset_quality_latency),
+        "code_quality": round(code_quality_score, 2),
+        "code_quality_latency": int(code_quality_latency),
     }
 
-    print(json.dumps(result))    
+    print(json.dumps(result,separators=(',' ':')))    
 
 
 

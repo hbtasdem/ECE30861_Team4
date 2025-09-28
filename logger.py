@@ -5,12 +5,14 @@
 # 1 means informational messags 
 # 2 means debug messages 
 # Default log verbosity is 0
+from dotenv import load_dotenv
 import os
 import sys
 from dotenv import load_dotenv
 
 
 load_dotenv()
+
 # read env vars once
 LOG_FILE = os.environ.get("LOG_FILE")
 LOG_LEVEL = int(os.environ.get("LOG_LEVEL", 0)) # default to 0
@@ -24,7 +26,7 @@ if not os.path.isfile(LOG_FILE):
 # Start with a blank log file each time 
 open(LOG_FILE, "w").close()
 
-# Then open file in append mode and write message 
+# Then open file in append mode and write message
 # LOG_LEVEL 1 informational messages
 def info(msg: str):
     if LOG_LEVEL >= 1:
