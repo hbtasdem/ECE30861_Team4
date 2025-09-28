@@ -10,21 +10,11 @@ scores using a linear decay function based on hardware-specific thresholds.
 """
 
 import os
-from typing import Dict, Tuple, Union
+from typing import Dict, Tuple
 import time
 from huggingface_hub import HfApi
 import re
-import logging
-
-# Set up logging - FIXED: Use environment variables
-log_level = os.getenv('LOG_LEVEL', '0')
-if log_level == '2':
-    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-elif log_level == '1':
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-else:
-    logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+import logger  # CHANGED: Import custom logger
 
 # Constants for weights (defined once to avoid repetition)
 SIZE_WEIGHTS = {
@@ -33,6 +23,8 @@ SIZE_WEIGHTS = {
     'desktop_pc': 0.20, # Common development environment
     'aws_server': 0.20 # Cloud deployment is common
 }
+
+print("test")
 
 def extract_model_id_from_url(url: str) -> str:
     """
@@ -59,7 +51,7 @@ def extract_model_id_from_url(url: str) -> str:
     
     return url
 
-def get_model_size_for_scoring(model_id: str) -> float:
+def get_model_size_for_scoring(model_id: str) -> float: # 
     """
     Get model size adjusted to produce scores matching sample output patterns.
 
@@ -147,7 +139,7 @@ def calculate_size_scores(model_id: str) -> Tuple[Dict[str, float], float, int]:
     """
     start_time = time.time() # Start timing
     
-    clean_model_id = extract_model_id_from_url(model_id)
+    clean_model_id = extract_model_id_from_url(model_id) # 
     
     # Get size adjusted for pattern matching
     size_gb = get_model_size_for_scoring(clean_model_id)
@@ -181,7 +173,7 @@ def calculate_size_scores(model_id: str) -> Tuple[Dict[str, float], float, int]:
     
     return size_scores, net_size_score, latency
 
-def calculate_size_score(model_input: Union[str, Dict]) -> Tuple[Dict[str, float], float, int]:
+def calculate_size_score(model_input) -> Tuple[dict, float, int]:
     """
     Calculate size compatibility score and latency for net scoring.
 
@@ -192,7 +184,7 @@ def calculate_size_score(model_input: Union[str, Dict]) -> Tuple[Dict[str, float
 
     Returns
     -------
-    Tuple[Dict[str, float], float, int]
+    Tuple[dict, float, int]
         A tuple containing:
         - Dictionary with size scores for each hardware device
         - Single net size score for overall calculation
@@ -210,7 +202,7 @@ def calculate_size_score(model_input: Union[str, Dict]) -> Tuple[Dict[str, float
     
     return size_scores, net_size_score, latency
 
-def get_detailed_size_score(model_input: Union[str, Dict]) -> Dict[str, Union[Dict[str, float], int]]:
+def get_detailed_size_score(model_input) -> Dict[str, float]:
     """
     Get detailed size scores for output formatting (original functionality).
     
@@ -221,7 +213,7 @@ def get_detailed_size_score(model_input: Union[str, Dict]) -> Dict[str, Union[Di
 
     Returns
     -------
-    Dict[str, Union[Dict[str, float], int]]
+    Dict[str, float]
         A dictionary with size_score and size_score_latency matching sample patterns.
     """
     # Handle dictionary input
@@ -247,43 +239,48 @@ def get_detailed_size_score(model_input: Union[str, Dict]) -> Dict[str, Union[Di
         'size_score_latency': latency
     }
 
-# Simple test function that returns values for terminal testing
-def test_size_calculations() -> Dict[str, any]:
+_size_cache = {}
+
+def calculate_size_score_cached(model_input) -> Tuple[dict, float, int]:
     """
-    Test function that returns size calculation results for terminal display.
+    Cached version to avoid duplicate calculations.
+    """
+    if isinstance(model_input, dict):
+        model_id = model_input.get('model_id') or model_input.get('name') or model_input.get('url', '')
+    else:
+        model_id = model_input
     
-    Returns
-    -------
-    Dict[str, any]
-        Dictionary containing test results
-    """
+    if model_id in _size_cache: # If result is cached
+        logger.debug(f"Using cached size result for {model_id}")
+        return _size_cache[model_id]
+    
+    logger.info(f"Calculating size score for {model_id}")
+    result = calculate_size_score(model_input)
+    _size_cache[model_id] = result
+    return result
+
+if __name__ == "__main__":
     test_models = [
         "google-bert/bert-base-uncased",
         "parvk11/audience_classifier_model", 
         "openai/whisper-tiny"
     ]
     
-    results = {}
-    
-    for model in test_models:
-        print(f"\n=== Testing: {model} ===")
-        size_scores, net_score, latency = calculate_size_scores(model)
+    logger.info("=== SIZE CALCULATIONS WITH NET SCORE ===")
+    for model_input in test_models:
+        logger.info(f"--- Testing: {model_input} ---")
         
-        results[model] = {
-            'size_scores': size_scores,
-            'net_score': net_score,
-            'latency_ms': latency
+        # Calculate ONCE and use the results for both outputs
+        size_scores, net_size_score, latency = calculate_size_scores(model_input)
+        
+        # Use the already calculated values
+        logger.info(f"Net size score: {net_size_score}")
+        logger.info(f"Latency: {latency} ms")
+        logger.info(f"Detailed size scores: {size_scores}")
+        
+        # Create the final result from the calculated values
+        final_result = {
+            'size_score': size_scores,
+            'size_score_latency': latency
         }
-        
-        print(f"Size scores: {size_scores}")
-        print(f"Net score: {net_score}")
-        print(f"Latency: {latency} ms")
-    
-    return results
-
-if __name__ == "__main__":
-    # When run directly, show results in terminal
-    print("=== SIZE CALCULATOR TEST ===")
-    test_results = test_size_calculations()
-    print(f"\n=== FINAL TEST RESULTS ===")
-    print(test_results)
+        logger.info(f"FINAL RESULT: {final_result}")
