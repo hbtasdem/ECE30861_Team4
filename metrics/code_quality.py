@@ -83,7 +83,7 @@ def code_quality(model_info: str, code_info: str, model_readme: str, code_readme
         
     if readme_to_check:
         test_mentions = sum(1 for indicator in testability_indicators if indicator in readme_to_check.lower())
-        test_score = min(test_mentions / 3, 1)  # 3 keywords = full points
+        test_score = min(test_mentions / 5, 1)  # 3 keywords = full points
         logger.debug(f"Test mentions: {test_mentions}, Testability score: {test_score}")
     else:
         logger.debug("No readme available for testability check")
