@@ -3,6 +3,7 @@ pip install huggingface_hub
 '''
 from huggingface_hub import DatasetCard, ModelCard
 from huggingface_hub.utils import EntryNotFoundError 
+import logger
 
 '''
 Completeness
@@ -16,8 +17,8 @@ def complete_checker(api_info, readme):
     
     from urllib.parse import urlparse
     import requests as rq
-    complete_score = 0.0
-    
+
+    logger.debug("Starting completeness check")
     
     card_data = api_info.get('cardData', {})
     
@@ -62,7 +63,10 @@ Correctness
 def correct_checker(readme: str):
     import re
     
+    logger.debug("Starting correctness check")
+    
     if not readme:
+        logger.debug("Empty readme provided for correctness check")
         return 0.0
     
     acc_pattern = [
@@ -76,6 +80,8 @@ def correct_checker(readme: str):
        if match:
            accuracy_val = float(match.group(1))
            return accuracy_val
+       
+    logger.debug("No accuracy information found")
     return 0.0
 '''
 Try #1: treats more data labels = more coverage
@@ -93,6 +99,7 @@ def coverage_checker(api_info: str, readme: str):
     "not geographic coverage, we are testing whether the data is diverse on samples 
     so it represents the general population of a specific purpose well."
     ''' 
+    logger.debug("Starting coverage check")
     
     checked_words = ['diverse', 'diversity', 'varied', 'variety', 'various', 'different',
     'heterogeneous', 'mixed', 'multiple', 'range', 'spectrum',
@@ -143,32 +150,38 @@ def relevance_checker(api_info: str):
     
     from datetime import date
     from dateutil import parser
-      
+    
+    logger.debug("Starting relevance check")
+    
     today = date.today() #todays date
     
-    date_creation = api_info['createdAt'] #extract creation date from json, returns date & time format
-    date_creation = parser.parse(date_creation) #format the date/time info, make it easy to extract date
-    date_creation = date_creation.date() #extract date wo the time/time zone
-    
-    days_passed = (today - date_creation).days #get number of days passed in int
-    
-    #used for debug:
-    # print(today)
-    # print(date_creation)
-    # print(days_passed)
+    try:
+        date_creation = api_info['createdAt'] #extract creation date from json, returns date & time format
+        date_creation = parser.parse(date_creation) #format the date/time info, make it easy to extract date
+        date_creation = date_creation.date() #extract date wo the time/time zone
+        
+        days_passed = (today - date_creation).days #get number of days passed in int
+        
+        #categorize relevance based on the number of days passed 
+            #might need to change the thresholds depending on the testcases fed, relevance of 1 year might be too ambitious
+        if days_passed > 720: 
+            relevance_score = 0.1
+        elif days_passed > 360:
+            relevance_score = 0.4
+        elif days_passed > 180:
+            relevance_score = 0.7
+        else:
+            relevance_score = 1.0
+        
+        return relevance_score
+        
+    except KeyError:
+        logger.info("Error: 'createdAt' field not found in API info")
+        return 0.0  
+    except Exception as e:
+        logger.info(f"Error parsing creation date: {e}")
+        return 0.0
 
-    #categorize relevance based on the number of days passed 
-        #might need to change the thresholds depending on the testcases fed, relevance of 1 year might be too ambitious
-    if days_passed > 720: 
-        relevance_score = 0.1
-    elif days_passed > 360:
-        relevance_score = 0.4
-    elif days_passed > 180:
-        relevance_score = 0.7
-    else:
-        relevance_score = 1.0
-    
-    return relevance_score 
 
 '''
 Finalizes data_quality calcs
@@ -192,6 +205,7 @@ data_quality_score : int
 def data_quality(api_info, readme):
     import time
     start = time.time()
+    logger.info("Calculating data_quality metric")
     
     data_quality_score = 0.0
     
