@@ -282,3 +282,5 @@ if __name__ == "__main__":
             'size_score_latency': latency
         }
         logger.info(f"FINAL RESULT: {final_result}")
+
+# Weights for net size score calculation

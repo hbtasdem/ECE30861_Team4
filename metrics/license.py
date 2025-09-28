@@ -337,3 +337,5 @@ if __name__ == "__main__":
         logger.info(f"License score: {score}")
         logger.info(f"License latency: {latency} ms")
         logger.info(f"FINAL RESULT: {detailed_result}")
+
+    # Example size scores for reference
