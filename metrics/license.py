@@ -12,25 +12,7 @@ from typing import Dict, Tuple
 import re
 import requests
 from urllib.parse import urljoin
-import logging
 import os
-
-# Set up logger - FIXED: Use environment variables
-logger = logging.getLogger(__name__)
-log_level = os.getenv('LOG_LEVEL', '0')
-if log_level == '2':
-    logger.setLevel(logging.DEBUG)
-elif log_level == '1':
-    logger.setLevel(logging.INFO)
-else:
-    logger.setLevel(logging.WARNING)
-
-# Create console handler if no handlers exist
-if not logger.handlers:
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
 
 # Pre-compiled regex for better performance
 URL_PATTERN = re.compile(r'huggingface\.co/([^/]+/[^/?]+)')
@@ -111,7 +93,6 @@ def download_readme_directly(model_id: str) -> str:
         response = requests.get(raw_url, timeout=10)
         
         if response.status_code == 200:
-            logger.debug(f"Successfully downloaded README for {model_id}")
             return response.text
         
         # Try alternative URLs
@@ -123,14 +104,11 @@ def download_readme_directly(model_id: str) -> str:
         for url in alternative_urls:
             response = requests.get(url, timeout=10)
             if response.status_code == 200:
-                logger.debug(f"Successfully downloaded README for {model_id} from alternative URL")
                 return response.text
                 
-        logger.warning(f"README not found for {model_id}")
         return ""
         
     except Exception as e:
-        logger.error(f"Error downloading README for {model_id}: {e}")
         return ""
 
 def extract_license_section(readme_content: str) -> str:
@@ -153,14 +131,12 @@ def extract_license_section(readme_content: str) -> str:
     # Look for license section using header pattern
     license_match = LICENSE_SECTION_PATTERN.search(readme_content)
     if license_match:
-        logger.debug("Found license section using header pattern")
         return license_match.group(1).strip()
     
     # Try different license patterns
     for pattern in LICENSE_PATTERNS:
         matches = pattern.findall(readme_content)
         if matches:
-            logger.debug(f"Found license using pattern: {matches[0]}")
             return matches[0]
     
     # Fallback: look for any line containing "license" and take surrounding context
@@ -170,10 +146,8 @@ def extract_license_section(readme_content: str) -> str:
             # Get the line and some context
             start = max(0, i - 2)
             end = min(len(lines), i + 5)
-            logger.debug("Found license mention using keyword search")
             return '\n'.join(lines[start:end])
     
-    logger.debug("No license section found in README")
     return ""
 
 def analyze_license_text(license_text: str) -> float:
@@ -191,14 +165,12 @@ def analyze_license_text(license_text: str) -> float:
         License score: 1.0 (compatible), 0.0 (incompatible), 0.5 (ambiguous)
     """
     if not license_text:
-        logger.debug("No license text found - returning 0.0")
         return 0.0  # No license information found → incompatible
     
     text_lower = license_text.lower()
     
     # Check for gated/commercial licenses first (automatic 0.0)
     if any(indicator in text_lower for indicator in GATED_INDICATORS):
-        logger.debug("Gated/commercial license detected - returning 0.0")
         return 0.0
     
     # Check for compatible licenses
@@ -208,7 +180,6 @@ def analyze_license_text(license_text: str) -> float:
         if re.search(r'\b' + re.escape(license) + r'\b', text_lower):
             compatible_found = True
             compatible_license = license
-            logger.debug(f"Compatible license found: {license}")
             break
     
     # Check for incompatible licenses
@@ -218,27 +189,21 @@ def analyze_license_text(license_text: str) -> float:
         if re.search(r'\b' + re.escape(license) + r'\b', text_lower):
             incompatible_found = True
             incompatible_license = license
-            logger.debug(f"Incompatible license found: {license}")
             break
     
     # Scoring logic
     if compatible_found and not incompatible_found:
-        logger.debug(f"Compatible license ({compatible_license}) found without incompatibles - returning 1.0")
         return 1.0
     elif incompatible_found:
-        logger.debug(f"Incompatible license ({incompatible_license}) found - returning 0.0")
         return 0.0
     elif compatible_found:
-        logger.debug(f"Compatible license ({compatible_license}) found (mixed signals) - returning 1.0")
         return 1.0  # If compatible found but no incompatible mentioned
     else:
         # Check for common license indicators in the text
         if any(word in text_lower for word in ["apache", "mit", "bsd", "open source", "permissive"]):
-            logger.debug("Ambiguous but positive license indicators found - returning 0.5")
             return 0.5
         else:
             # No clear license found - assume incompatible (more conservative)
-            logger.debug("No clear license found - returning 0.0")
             return 0.0
 
 def get_license_score(model_input) -> Tuple[float, int]:
@@ -264,13 +229,11 @@ def get_license_score(model_input) -> Tuple[float, int]:
         model_id = model_input.get('model_id') or model_input.get('name') or model_input.get('url', '')
         if not model_id:
             latency = int((time.time() - start_time) * 1000)
-            logger.warning("No model ID found in input - returning 0.0")
             return 0.0, latency
     else:
         model_id = model_input
     
     clean_model_id = extract_model_id_from_url(model_id)
-    logger.info(f"Calculating license score for: {clean_model_id}")
     
     # Download and analyze README for unknown models
     readme_content = download_readme_directly(clean_model_id)
@@ -278,7 +241,6 @@ def get_license_score(model_input) -> Tuple[float, int]:
     if not readme_content:
         # No README found - assume incompatible
         latency = int((time.time() - start_time) * 1000)
-        logger.warning(f"No README found for {clean_model_id} - returning 0.0")
         return 0.0, latency
     
     # Extract license section
@@ -289,7 +251,6 @@ def get_license_score(model_input) -> Tuple[float, int]:
     
     # Calculate actual latency
     latency = int((time.time() - start_time) * 1000)
-    logger.info(f"License score calculated: {score} (latency: {latency}ms)")
     
     return score, latency
 
@@ -326,10 +287,8 @@ def get_license_score_cached(model_input) -> Tuple[float, int]:
         model_id = model_input
     
     if model_id in _license_cache:
-        logger.debug(f"Using cached license result for {model_id}")
         return _license_cache[model_id]
     
-    logger.info(f"Calculating license score for {model_id}")
     result = get_license_score(model_input)
     _license_cache[model_id] = result
     return result
@@ -341,17 +300,10 @@ if __name__ == "__main__":
         "openai/whisper-tiny",                # Should find MIT → 1.0
     ]
     
-    logger.info("=== LICENSE ANALYSIS WITHOUT HUGGING FACE API ===")
-    
     for model_input in test_models:
-        logger.info(f"--- Testing: {model_input} ---")
         
         # Get score and latency for net scoring (returns tuple)
         score, latency = get_license_score_cached(model_input)
         
         # Get detailed result for output formatting
         detailed_result = get_detailed_license_score(model_input)
-        
-        logger.info(f"License score: {score}")
-        logger.info(f"License latency: {latency} ms")
-        logger.info(f"FINAL RESULT: {detailed_result}")

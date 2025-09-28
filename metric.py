@@ -1,6 +1,6 @@
 
 from metrics.data_quality import data_quality
-from metrics.code_quality import code_quality
+from metrics.code_quality import code_quality_calc
 from metrics.dataset_and_code_score import dataset_and_code_score
 from metrics.performance_claims import performance_claims
 from metrics.size import calculate_size_score
@@ -17,7 +17,7 @@ def main(model_info, model_readme, raw_model_url, code_info, code_readme, raw_da
     logger.info("Begin processing metrics.")
     
     data_quality_score, dq_latency = data_quality(model_info, model_readme)
-    code_quality_score, cq_latency = code_quality(model_info, code_info, model_readme, code_readme)
+    code_quality_score, cq_latency = code_quality_calc(model_info, code_info, model_readme, code_readme)
     
     dc_score, dc_latency = dataset_and_code_score(code_info, raw_dataset_url)
     
