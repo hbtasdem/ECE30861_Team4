@@ -175,7 +175,7 @@ def calculate_size_scores(model_id: str) -> Tuple[Dict[str, float], float, int]:
     
     return size_scores, net_size_score, latency
 
-def calculate_size_score(model_input) -> Tuple[float, int]:
+def calculate_size_score(model_input) -> Tuple[dict, float, int]:
     """
     Calculate size compatibility score and latency for net scoring.
 
@@ -199,9 +199,9 @@ def calculate_size_score(model_input) -> Tuple[float, int]:
     else:
         model_id = model_input # If input is a string, use it directly
     
-    _, net_size_score, latency = calculate_size_scores(model_id) # Calculate size scores
+    size_scores, net_size_score, latency = calculate_size_scores(model_id) # Calculate size scores
     
-    return net_size_score, latency
+    return size_scores,net_size_score, latency
 
 def get_detailed_size_score(model_input) -> Dict[str, float]:
     """
