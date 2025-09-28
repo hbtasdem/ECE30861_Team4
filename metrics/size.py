@@ -24,8 +24,6 @@ SIZE_WEIGHTS = {
     'aws_server': 0.20 # Cloud deployment is common
 }
 
-print("test")
-
 def extract_model_id_from_url(url: str) -> str:
     """
     Extract model ID from various URL formats.
