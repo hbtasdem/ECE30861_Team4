@@ -23,7 +23,7 @@ code_quality_score : int
 import logger
   
 # def code_quality_calc(type: str, api_info: str, readme: str) -> int:
-def code_quality_calc(model_info: str, code_info: str, model_readme: str, code_readme: str):
+def code_quality(model_info: str, code_info: str, model_readme: str, code_readme: str):
     import requests as rq
     import time
     

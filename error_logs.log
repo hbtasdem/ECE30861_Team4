@@ -1,7 +1,19 @@
 Info:Calculating data_quality metric
+Info:Completeness keywords found: 8
+Info:eval ments found: 1
+Info:accuracy: 0.95
 Info:Calculating data_quality metric
+Info:Completeness keywords found: 1
+Info:eval ments found: 0
+Info:No accuracy information found
 Info:Calculating data_quality metric
+Info:Completeness keywords found: 8
+Info:eval ments found: 1
+Info:accuracy: 0.92
 Info:Calculating data_quality metric
+Info:Completeness keywords found: 1
+Info:eval ments found: 0
+Info:No accuracy information found
 Info:Calculating code_quality metric
 Info:Final code quality score: 0.8799999999999999
 Info:Calculating code_quality metric
