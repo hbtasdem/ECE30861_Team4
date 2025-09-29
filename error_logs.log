@@ -1,105 +1,162 @@
+Info:Model: google-bert/bert-base-uncased
+Info:Pattern-adjusted size: 1.60 GB
+Info:  raspberry_pi: 0.20
+Info:  jetson_nano: 0.60
+Info:  desktop_pc: 0.90
+Info:  aws_server: 1.0
+Info:Net size score: 0.6
+Info:Size calculation latency: 381 ms
+Info:Model: parvk11/audience_classifier_model
+Info:Pattern-adjusted size: 0.50 GB
+Info:  raspberry_pi: 0.75
+Info:  jetson_nano: 0.88
+Info:  desktop_pc: 0.97
+Info:  aws_server: 1.0
+Info:Net size score: 0.88
+Info:Size calculation latency: 84 ms
+Info:Model: openai/whisper-tiny
+Info:Pattern-adjusted size: 0.20 GB
+Info:  raspberry_pi: 0.90
+Info:  jetson_nano: 0.95
+Info:  desktop_pc: 0.99
+Info:  aws_server: 1.0
+Info:Net size score: 0.95
+Info:Size calculation latency: 76 ms
+Info:Model: google-bert/bert-base-uncased
+Info:Pattern-adjusted size: 1.60 GB
+Info:  raspberry_pi: 0.20
+Info:  jetson_nano: 0.60
+Info:  desktop_pc: 0.90
+Info:  aws_server: 1.0
+Info:Net size score: 0.6
+Info:Size calculation latency: 80 ms
+Info:Calculating size score for google-bert/bert-base-uncased
+Info:Model: google-bert/bert-base-uncased
+Info:Pattern-adjusted size: 1.60 GB
+Info:  raspberry_pi: 0.20
+Info:  jetson_nano: 0.60
+Info:  desktop_pc: 0.90
+Info:  aws_server: 1.0
+Info:Net size score: 0.6
+Info:Size calculation latency: 73 ms
+Info:Using cached size result for google-bert/bert-base-uncased
+Info:Model: google-bert/bert-base-uncased
+Info:Pattern-adjusted size: 1.60 GB
+Info:  raspberry_pi: 0.20
+Info:  jetson_nano: 0.60
+Info:  desktop_pc: 0.90
+Info:  aws_server: 1.0
+Info:Net size score: 0.6
+Info:Size calculation latency: 76 ms
+Info:Model: google-bert/bert-base-uncased
+Info:Pattern-adjusted size: 1.60 GB
+Info:  raspberry_pi: 0.20
+Info:  jetson_nano: 0.60
+Info:  desktop_pc: 0.90
+Info:  aws_server: 1.0
+Info:Net size score: 0.6
+Info:Size calculation latency: 79 ms
+Info:Model: google-bert/bert-base-uncased
+Info:Pattern-adjusted size: 1.60 GB
+Info:  raspberry_pi: 0.20
+Info:  jetson_nano: 0.60
+Info:  desktop_pc: 0.90
+Info:  aws_server: 1.0
+Info:Net size score: 0.6
+Info:Size calculation latency: 78 ms
+Info:Error getting model size for unknown/model-123: 401 Client Error. (Request ID: Root=1-68d9e5e4-4e394cb46301dd740fa68914;312a78e0-b7ed-438d-a655-8729ac557700)
 
-Info:Calculating license score for: google-bert/bert-base-uncased
-Info:Successfully downloaded README for google-bert/bert-base-uncased
-Info:Found license using pattern: apache-2.0
-Info:Compatible license found: apache-2.0
-Info:Compatible license (apache-2.0) found without incompatibles - returning 1.0
-Info:License score calculated: 1.0 (latency: 487ms)
-Info:Calculating license score for: parvk11/audience_classifier_model
-Info:Successfully downloaded README for parvk11/audience_classifier_model
-Info:Found license using pattern: ** [More Information Needed]
-Info:No clear license found - returning 0.0
-Info:License score calculated: 0.0 (latency: 346ms)
-Info:Calculating license score for: openai/whisper-tiny
-Info:Successfully downloaded README for openai/whisper-tiny
-Info:Found license using pattern: apache-2.0
-Info:Compatible license found: apache-2.0
-Info:Compatible license (apache-2.0) found without incompatibles - returning 1.0
-Info:License score calculated: 1.0 (latency: 359ms)
-Info:Calculating license score for: microsoft/DialoGPT-small
-Info:Successfully downloaded README for microsoft/DialoGPT-small
-Info:Found license using pattern: mit
-Info:Compatible license found: mit
-Info:Compatible license (mit) found without incompatibles - returning 1.0
-Info:License score calculated: 1.0 (latency: 361ms)
-Info:No clear license found - returning 0.0
-Info:Gated/commercial license detected - returning 0.0
-Info:No license text found - returning 0.0
-Info:No license text found - returning 0.0
-Info:Found license mention using keyword search
-Info:Calculating license score for: google-bert/bert-base-uncased
-Info:Successfully downloaded README for google-bert/bert-base-uncased
-Info:Found license using pattern: apache-2.0
-Info:Compatible license found: apache-2.0
-Info:Compatible license (apache-2.0) found without incompatibles - returning 1.0
-Info:License score calculated: 1.0 (latency: 377ms)
-Info:No model ID found in input - returning 0.0
-Info:Calculating license score for: google-bert/bert-base-uncased
-Info:Successfully downloaded README for google-bert/bert-base-uncased
-Info:Found license using pattern: apache-2.0
-Info:Compatible license found: apache-2.0
-Info:Compatible license (apache-2.0) found without incompatibles - returning 1.0
-Info:License score calculated: 1.0 (latency: 425ms)
-Info:Calculating license score for: google-bert/bert-base-uncased
-Info:Successfully downloaded README for google-bert/bert-base-uncased
-Info:Found license using pattern: apache-2.0
-Info:Compatible license found: apache-2.0
-Info:Compatible license (apache-2.0) found without incompatibles - returning 1.0
-Info:License score calculated: 1.0 (latency: 340ms)
-Info:Calculating license score for google-bert/bert-base-uncased
-Info:Calculating license score for: google-bert/bert-base-uncased
-Info:Successfully downloaded README for google-bert/bert-base-uncased
-Info:Found license using pattern: apache-2.0
-Info:Compatible license found: apache-2.0
-Info:Compatible license (apache-2.0) found without incompatibles - returning 1.0
-Info:License score calculated: 1.0 (latency: 363ms)
-Info:Calculating license score for: google-bert/bert-base-uncased
-Info:Successfully downloaded README for google-bert/bert-base-uncased
-Info:Found license using pattern: apache-2.0
-Info:Compatible license found: apache-2.0
-Info:Compatible license (apache-2.0) found without incompatibles - returning 1.0
-Info:License score calculated: 1.0 (latency: 349ms)
-Info:Compatible license found: apache 2.0
-Info:Compatible license (apache 2.0) found without incompatibles - returning 1.0
-Info:Compatible license found: mit license
-Info:Compatible license (mit license) found without incompatibles - returning 1.0
-Info:Compatible license found: bsd
-Info:Compatible license (bsd) found without incompatibles - returning 1.0
-Info:Compatible license found: bsl-1.0
-Info:Compatible license (bsl-1.0) found without incompatibles - returning 1.0
-Info:Compatible license found: lgplv2.1
-Info:Compatible license (lgplv2.1) found without incompatibles - returning 1.0
-Info:Incompatible license found: gpl
-Info:Incompatible license (gpl) found - returning 0.0
-Info:Incompatible license found: agpl
-Info:Incompatible license (agpl) found - returning 0.0
-Info:Incompatible license found: non-commercial
-Info:Incompatible license (non-commercial) found - returning 0.0
-Info:Incompatible license found: proprietary
-Info:Incompatible license (proprietary) found - returning 0.0
-Info:Ambiguous but positive license indicators found - returning 0.5
-Info:No clear license found - returning 0.0
-Info:README not found for non/existent-model-12345
-Info:Found license section using header pattern
-Info:Found license using pattern: MIT License
-Info:Calculating license score for google-bert/bert-base-uncased
-Info:Calculating license score for: google-bert/bert-base-uncased
-Info:Successfully downloaded README for google-bert/bert-base-uncased
-Info:Found license using pattern: apache-2.0
-Info:Compatible license found: apache-2.0
-Info:Compatible license (apache-2.0) found without incompatibles - returning 1.0
-Info:License score calculated: 1.0 (latency: 351ms)
-Info:Compatible license found: apache 2.0
-Info:Incompatible license found: gpl
-Info:Incompatible license (gpl) found - returning 0.0
-Info:No license text found - returning 0.0
-Info:Gated/commercial license detected - returning 0.0
-Info:Compatible license found: apache 2.0
-Info:Compatible license (apache 2.0) found without incompatibles - returning 1.0
-Info:Incompatible license found: gpl
-Info:Incompatible license (gpl) found - returning 0.0
-Info:Ambiguous but positive license indicators found - returning 0.5
-Info:No clear license found - returning 0.0
-Info:Found license section using header pattern
-Info:Found license using pattern: Apache 2.0
-Info:Found license using pattern: BSD-3-Clause
+Repository Not Found for url: https://huggingface.co/api/models/unknown/model-123.
+Please make sure you specified the correct `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated. For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+Invalid username or password.
+Info:Model: google-bert/bert-base-uncased
+Info:Pattern-adjusted size: 1.60 GB
+Info:  raspberry_pi: 0.20
+Info:  jetson_nano: 0.60
+Info:  desktop_pc: 0.90
+Info:  aws_server: 1.0
+Info:Net size score: 0.6
+Info:Size calculation latency: 79 ms
+Info:Error getting model size for some/unknown-model: 401 Client Error. (Request ID: Root=1-68d9e5e5-632c150d5adfff50621d4646;83f7acf2-6cf7-43e8-8933-0dee78fc6f34)
+
+Repository Not Found for url: https://huggingface.co/api/models/some/unknown-model.
+Please make sure you specified the correct `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated. For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+Invalid username or password.
+Info:Model: google-bert/bert-base-uncased
+Info:Pattern-adjusted size: 1.60 GB
+Info:  raspberry_pi: 0.20
+Info:  jetson_nano: 0.60
+Info:  desktop_pc: 0.90
+Info:  aws_server: 1.0
+Info:Net size score: 0.6
+Info:Size calculation latency: 79 ms
+Info:Calculating size score for google-bert/bert-base-uncased
+Info:Model: google-bert/bert-base-uncased
+Info:Pattern-adjusted size: 1.60 GB
+Info:  raspberry_pi: 0.20
+Info:  jetson_nano: 0.60
+Info:  desktop_pc: 0.90
+Info:  aws_server: 1.0
+Info:Net size score: 0.6
+Info:Size calculation latency: 85 ms
+Info:Using cached size result for google-bert/bert-base-uncased
+Info:Model: google-bert/bert-base-uncased
+Info:Pattern-adjusted size: 1.60 GB
+Info:  raspberry_pi: 0.20
+Info:  jetson_nano: 0.60
+Info:  desktop_pc: 0.90
+Info:  aws_server: 1.0
+Info:Net size score: 0.6
+Info:Size calculation latency: 75 ms
+Info:Model: openai/whisper-tiny
+Info:Pattern-adjusted size: 0.20 GB
+Info:  raspberry_pi: 0.90
+Info:  jetson_nano: 0.95
+Info:  desktop_pc: 0.99
+Info:  aws_server: 1.0
+Info:Net size score: 0.95
+Info:Size calculation latency: 131 ms
+Info:Model: google-bert/bert-base-uncased
+Info:Pattern-adjusted size: 1.60 GB
+Info:  raspberry_pi: 0.20
+Info:  jetson_nano: 0.60
+Info:  desktop_pc: 0.90
+Info:  aws_server: 1.0
+Info:Net size score: 0.6
+Info:Size calculation latency: 109 ms
+Info:Model: google-bert/bert-base-uncased
+Info:Pattern-adjusted size: 1.60 GB
+Info:  raspberry_pi: 0.20
+Info:  jetson_nano: 0.60
+Info:  desktop_pc: 0.90
+Info:  aws_server: 1.0
+Info:Net size score: 0.6
+Info:Size calculation latency: 77 ms
+Info:Using cached size result for google-bert/bert-base-uncased
+Info:Error getting model size for invalid/model/name/with/slashes: Repo id must be in the form 'repo_name' or 'namespace/repo_name': 'invalid/model/name/with/slashes'. Use `repo_type` argument if needed.
+Info:Error getting model size for completely/invalid-model-name-12345: 401 Client Error. (Request ID: Root=1-68d9e5e5-341b1f056ca32ed27d573cc4;8b0a1c4e-723b-4e92-93c6-dee79193fddd)
+
+Repository Not Found for url: https://huggingface.co/api/models/completely/invalid-model-name-12345.
+Please make sure you specified the correct `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated. For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+Invalid username or password.
+Info:Model: completely/invalid-model-name-12345
+Info:Pattern-adjusted size: 0.50 GB
+Info:  raspberry_pi: 0.75
+Info:  jetson_nano: 0.88
+Info:  desktop_pc: 0.97
+Info:  aws_server: 1.0
+Info:Net size score: 0.88
+Info:Size calculation latency: 92 ms
+Info:Calculating size score for google-bert/bert-base-uncased
+Info:Model: google-bert/bert-base-uncased
+Info:Pattern-adjusted size: 1.60 GB
+Info:  raspberry_pi: 0.20
+Info:  jetson_nano: 0.60
+Info:  desktop_pc: 0.90
+Info:  aws_server: 1.0
+Info:Net size score: 0.6
+Info:Size calculation latency: 91 ms
+Info:Using cached size result for google-bert/bert-base-uncased
