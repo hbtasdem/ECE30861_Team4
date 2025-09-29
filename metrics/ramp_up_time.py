@@ -31,10 +31,11 @@ def calculate_api_complexity_score(api_info) -> float:
             score = 0.2
     
     else:
-        # if no pipeline tag base on number of files
+        # if no pipeline tag base on number of files 
+        logger.info("No tag - resorting to number of files")
         num_files = len(api_info.get("siblings", api_info))  
         if num_files > 15:
-            score = 0.7
+            score = 0.7 
         else:
             score = 0.4
 
@@ -172,6 +173,7 @@ def ramp_up_time(api_info : dict) -> float:
     # start latency timer 
     start = time.perf_counter()
 
+    #calculates various components of ramp up time score
     api_complexity_score = calculate_api_complexity_score(api_info)
     documentation_score = calculate_documentation_score(api_info)
     community_support_score = calculate_community_support_score(api_info)
@@ -182,8 +184,9 @@ def ramp_up_time(api_info : dict) -> float:
              0.35 * community_support_score + 
              0.05 * quick_start_availability_score)
     
+    #small model (likely experimental and more difficuly to ramp up)
     downloads = api_info.get("downloads", 0)
-    if downloads < 50:  # small/experimental model
+    if downloads < 50:
         ramp_up_time_metric_score *= 0.4
  
     # end latency timer 
