@@ -2,8 +2,7 @@ from urllib.parse import urlparse
 import requests as rq
 import re
 import sys
-import metric
-
+import metric_concurrent
 import logger
 
 """
@@ -21,16 +20,15 @@ string
     The dataset link found, or None. 
 """
 def find_dataset(model_readme: str, seen_datasets: set) -> str:
-    logger.debug("Dataset url not given. Search in previously seen.")
     for dataset_url in seen_datasets:
         dataset = dataset_url.split("/")[-1].lower()
         if dataset in model_readme:
             logger.debug(f"Updated dataset url:{dataset_url}")
             return dataset_url
-    return None # None found
+    return "" # None found
 
 '''
-Main function to get & condition the user input url
+Main function to get & condiion the user input url
 
 Parameters
 ----------
@@ -97,7 +95,9 @@ def main():
             if raw_dataset_url:
                 seen_datasets.add(raw_dataset_url)
             else:
+                logger.debug("Dataset url not given. Search in previously seen.")
                 raw_dataset_url = find_dataset(model_readme, seen_datasets)
+                logger.debug(f"Found dataset url?:{dataset_url}")
 
             # dataset readme - DELETE IF NOT USED
             dataset_url = f'https://huggingface.co/api/models/{dataset_path}'
@@ -141,7 +141,7 @@ def main():
             # --------------------
             
             # Analyze metrics
-            metric.main(model_info, model_readme, raw_model_url, code_info, code_readme, raw_dataset_url)
-    
+            metric_concurrent.main(model_info, model_readme, raw_model_url, code_info, code_readme, raw_dataset_url)
+
 if __name__ == "__main__":
     main() 
