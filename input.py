@@ -2,8 +2,7 @@ from urllib.parse import urlparse
 import requests as rq
 import re
 import sys
-import metric
-
+import metric_concurrent
 import logger
 
 """
@@ -141,7 +140,7 @@ def main():
             # --------------------
             
             # Analyze metrics
-            metric.main(model_info, model_readme, raw_model_url, code_info, code_readme, raw_dataset_url)
-    
+            metric_concurrent.main(model_info, model_readme, raw_model_url, code_info, code_readme, raw_dataset_url)
+
 if __name__ == "__main__":
     main() 

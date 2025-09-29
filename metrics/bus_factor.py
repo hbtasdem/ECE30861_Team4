@@ -138,3 +138,4 @@ def bus_factor(api_info) -> float:
     latency = (end - start) * 1000
 
     return round(bus_factor_metric_score, 2), latency
+
