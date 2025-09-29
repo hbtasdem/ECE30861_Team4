@@ -42,6 +42,7 @@ def main(model_info, model_readme, raw_model_url, code_info, code_readme, raw_da
     code_quality_score, cq_latency = results["code_quality"]
     dc_score, dc_latency = results["dc_score"]
     perf_score, perf_latency = results["performance_claims"]
+    print(results["performance_claims"])
     size_scores, net_size_score, size_latency = results["size_score"]
     license_score, license_latency = results["license_score"]
     bus_score, bus_latency = results["bus_factor"]
@@ -50,7 +51,7 @@ def main(model_info, model_readme, raw_model_url, code_info, code_readme, raw_da
     logger.info("Concurrent thread results unpacked")
 
     # Final net score calculation
-    net_score = license_score * (0.25 * ramp_score + 0.2 * net_size_score + 0.15 * data_quality_score + 0.15 * bus_score + 0.07 * dc_score + 0.12 * code_quality_score + 0.06 * perf_score)
+    net_score = 0.1 * license_score + 0.1 * ramp_score + 0.1 * net_size_score + 0.15 * data_quality_score + 0.1 * bus_score + 0.2 * dc_score + 0.1 * code_quality_score + 0.15 * perf_score
 
     end = time.time()
     net_latency = int((end - start) * 1000)
