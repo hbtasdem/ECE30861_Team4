@@ -162,7 +162,6 @@ def coverage_checker(api_info: str, readme: str):
     else:
         return 0.3  # No clear coverage description
     
-
 '''
 Relevance calculator
 
