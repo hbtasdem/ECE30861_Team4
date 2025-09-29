@@ -79,6 +79,7 @@ elif [ "$COMMAND" == "test" ]; then
     if [ "$passed_tests" -eq "$total_tests" ]; then
         exit 0
     else
+        echo "Did not pass all tests"
         exit 1
     fi
 
