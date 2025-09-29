@@ -1,8 +1,42 @@
+Info:Raw code url:https://github.com/google-research/bert
+Raw dataset url: https://huggingface.co/datasets/bookcorpus/bookcorpus
+Raw model url: https://huggingface.co/google-bert/bert-base-uncased
+Info:Begin processing metrics.
 Info:Calculating data_quality metric
-Info:Calculating data_quality metric
-Info:Calculating data_quality metric
-Info:Calculating data_quality metric
+Info:Completeness keywords found: 9
+Info:eval ments found: 4
+Info:accuracy: 2.0
 Info:Calculating code_quality metric
-Info:Final code quality score: 0.8799999999999999
+Info:Final code quality score: 0.92
+Info:Calculating dataset_and_score metric
+Info:Calculating performance_claims metric
+Info:Calculating bus factor metric
+Info:Calculating bus factor metric
+Info:Raw code url:
+Raw dataset url: 
+Raw model url: https://huggingface.co/parvk11/audience_classifier_model
+Info:Begin processing metrics.
+Info:Calculating data_quality metric
+Info:Completeness keywords found: 8
+Info:eval ments found: 4
+Info:accuracy: 2.0
 Info:Calculating code_quality metric
-Info:Final code quality score: 0.08000000000000002
+Info:Final code quality score: 0.43999999999999995
+Info:Calculating dataset_and_score metric
+Info:Calculating performance_claims metric
+Info:Calculating bus factor metric
+Info:Calculating bus factor metric
+Info:Raw code url:
+Raw dataset url: 
+Raw model url: https://huggingface.co/openai/whisper-tiny/tree/main
+Info:Begin processing metrics.
+Info:Calculating data_quality metric
+Info:Completeness keywords found: 8
+Info:eval ments found: 5
+Info:accuracy: 7.54
+Info:Calculating code_quality metric
+Info:Final code quality score: 0.7999999999999999
+Info:Calculating dataset_and_score metric
+Info:Calculating performance_claims metric
+Info:Calculating bus factor metric
+Info:Calculating bus factor metric

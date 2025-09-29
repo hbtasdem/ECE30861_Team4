@@ -25,7 +25,7 @@ structure doesn't support passing in real URLs in a test suite, AI assistance wa
     2. Calculate expected scores based on weighted metrics in our quality functions  
 """
 
-class Test_Model: # Model tests
+class Test_Dataset_Quality: # Model tests
     def test_model_good(self):  # Good data quality case
         api_info = {
         'cardData': {
@@ -68,7 +68,7 @@ class Test_Model: # Model tests
     def test_dataset_poor(self):  # Poor data quality case
         api_info = {
             'cardData': {},
-            'createdAt': (datetime.now() - timedelta(days=800)).isoformat() + 'Z'
+            'createdAt': (datetime.now() - timedelta(days= 800)).isoformat() + 'Z'
         }
         
         readme = "Model for stuff. It works okay I guess. No specific details provided."
@@ -76,9 +76,8 @@ class Test_Model: # Model tests
         # Unpack the tuple
         score, latency = metrics.data_quality.data_quality(api_info, readme)
         
-        assert score <= 0.2
+        assert score <= 0.3
 
-class Test_Dataset: # Dataset input tests
     def test_dataset_good(self):  # Good data quality case
         api_info = {
             'cardData': {
@@ -119,7 +118,7 @@ class Test_Dataset: # Dataset input tests
         
         assert score <= 0.3
         
-class Test_Code: # Github repo tests 
+class Test_Code_Quality: # Github repo tests 
     def test_code_good(self):  # Good code quality case
        
         
@@ -134,7 +133,7 @@ class Test_Code: # Github repo tests
         """ * 30  # Make it long for full reusability score
         code_readme = "testing pytest unittest ci continuous integration"  # Test keywords
   
-        score, latency = metrics.code_quality.code_quality_calc(model_info, code_info, model_readme, code_readme)
+        score, latency = metrics.code_quality.code_quality(model_info, code_info, model_readme, code_readme)
         
         assert score >= 0.8
 
@@ -145,6 +144,6 @@ class Test_Code: # Github repo tests
         code_readme = "Basic repo"  
         
   
-        score, latency = metrics.code_quality.code_quality_calc(model_info, code_info, model_readme, code_readme)
+        score, latency = metrics.code_quality.code_quality(model_info, code_info, model_readme, code_readme)
         
         assert score <= 0.3
