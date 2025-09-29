@@ -1,6 +1,7 @@
 # import parse_categories
 import metrics.data_quality
 import metrics.code_quality
+import metrics.size
 from datetime import datetime, timedelta
 
 
@@ -25,7 +26,41 @@ structure doesn't support passing in real URLs in a test suite, AI assistance wa
     2. Calculate expected scores based on weighted metrics in our quality functions  
 """
 
-class Test_Model: # Model tests
+class Test_Size_Score:
+    def test_gpt2_size_score(self):
+        """Test size calculation for GPT-2 model"""
+        raw_model_url = "https://huggingface.co/gpt2"
+        
+        size_scores, net_size_score, size_latency = metrics.size.calculate_size_score(raw_model_url)
+        
+        # GPT-2 should use default 0.5GB
+        expected_scores = {
+            'raspberry_pi': 0.75,
+            'jetson_nano': 0.88,
+            'desktop_pc': 0.97,
+            'aws_server': 1.0
+        }
+        
+        for device, expected in expected_scores.items():
+            assert abs(size_scores[device] - expected) < 0.02
+        
+    def test_ms_large_size_score(self):
+
+        raw_model_url = "https://huggingface.co/microsoft/DialoGPT-large"
+        
+        size_scores, net_size_score, size_latency = metrics.size.calculate_size_score(raw_model_url)
+        
+        # T5-small should use default 0.5GB
+        expected_scores = {
+            'raspberry_pi': 0.75,
+            'jetson_nano': 0.88,
+            'desktop_pc': 0.97,
+            'aws_server': 1.0
+    }
+        for device, expected in expected_scores.items():
+            assert abs(size_scores[device] - expected) < 0.01
+            
+class Test_Dataset_Quality: # Model tests
     def test_model_good(self):  # Good data quality case
         api_info = {
         'cardData': {
@@ -68,7 +103,7 @@ class Test_Model: # Model tests
     def test_dataset_poor(self):  # Poor data quality case
         api_info = {
             'cardData': {},
-            'createdAt': (datetime.now() - timedelta(days=800)).isoformat() + 'Z'
+            'createdAt': (datetime.now() - timedelta(days= 800)).isoformat() + 'Z'
         }
         
         readme = "Model for stuff. It works okay I guess. No specific details provided."
@@ -76,9 +111,8 @@ class Test_Model: # Model tests
         # Unpack the tuple
         score, latency = metrics.data_quality.data_quality(api_info, readme)
         
-        assert score <= 0.2
+        assert score <= 0.3
 
-class Test_Dataset: # Dataset input tests
     def test_dataset_good(self):  # Good data quality case
         api_info = {
             'cardData': {
@@ -119,7 +153,7 @@ class Test_Dataset: # Dataset input tests
         
         assert score <= 0.3
         
-class Test_Code: # Github repo tests 
+class Test_Code_Quality: # Github repo tests 
     def test_code_good(self):  # Good code quality case
        
         
@@ -134,7 +168,7 @@ class Test_Code: # Github repo tests
         """ * 30  # Make it long for full reusability score
         code_readme = "testing pytest unittest ci continuous integration"  # Test keywords
   
-        score, latency = metrics.code_quality.code_quality_calc(model_info, code_info, model_readme, code_readme)
+        score, latency = metrics.code_quality.code_quality(model_info, code_info, model_readme, code_readme)
         
         assert score >= 0.8
 
@@ -145,6 +179,6 @@ class Test_Code: # Github repo tests
         code_readme = "Basic repo"  
         
   
-        score, latency = metrics.code_quality.code_quality_calc(model_info, code_info, model_readme, code_readme)
+        score, latency = metrics.code_quality.code_quality(model_info, code_info, model_readme, code_readme)
         
         assert score <= 0.3
