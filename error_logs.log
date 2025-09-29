@@ -1,8 +1,17 @@
-Info:Calculating data_quality metric
-Info:Calculating data_quality metric
-Info:Calculating data_quality metric
-Info:Calculating data_quality metric
-Info:Calculating code_quality metric
-Info:Final code quality score: 0.8799999999999999
-Info:Calculating code_quality metric
-Info:Final code quality score: 0.08000000000000002
+Info:Calculating license score for: google-bert/bert-base-uncased
+Info:Successfully downloaded README for google-bert/bert-base-uncased
+Info:Found license using pattern: apache-2.0
+Info:Compatible license found: apache
+Info:Compatible license (apache) found without incompatibles - returning 1.0
+Info:License score calculated: 1.0 (latency: 364ms)
+Info:Calculating license score for: parvk11/audience_classifier_model
+Info:Successfully downloaded README for parvk11/audience_classifier_model
+Info:Found license using pattern: ** [More Information Needed]
+Info:No clear license found - returning 0.0
+Info:License score calculated: 0.0 (latency: 359ms)
+Info:Calculating license score for: openai/whisper-tiny
+Info:Successfully downloaded README for openai/whisper-tiny
+Info:Found license using pattern: apache-2.0
+Info:Compatible license found: apache
+Info:Compatible license (apache) found without incompatibles - returning 1.0
+Info:License score calculated: 1.0 (latency: 357ms)
