@@ -55,7 +55,25 @@ if [ "$COMMAND" == "install" ]; then
 # ./run test
 #---------------------
 elif [ "$COMMAND" == "test" ]; then
-    pytest tests.py -v
+    # Run pytest under coverage, capture output
+    pytest_out=$(coverage run -m pytest tests.py --tb=no --disable-warnings --maxfail=0 -q)
+
+    # Extract passed and failed counts from the pytest summary line
+    passed_tests=$(echo "$pytest_out" | grep -o '[0-9]\+ passed' | awk '{print $1}')
+    failed_tests=$(echo "$pytest_out" | grep -o '[0-9]\+ failed' | awk '{print $1}')
+    skipped_tests=$(echo "$pytest_out" | grep -o '[0-9]\+ skipped' | awk '{print $1}')
+
+    # Default to 0 if not present
+    [ -z "$passed_tests" ] && passed_tests=0
+    [ -z "$failed_tests" ] && failed_tests=0
+    [ -z "$skipped_tests" ] && skipped_tests=0
+
+    total_tests=$((passed_tests + failed_tests + skipped_tests))
+
+    # Get coverage %
+    coverage_percent=$(coverage report | tail -1 | awk '{print $4}' | tr -d '%')
+
+    echo "${passed_tests}/${total_tests} test cases passed. ${coverage_percent}% line coverage achieved."
     exit 0
 
 #---------------------
