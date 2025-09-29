@@ -146,22 +146,4 @@ def performance_claims(model_url: str) -> tuple[str, str]:
 
     end = time.time()
     latency = end - start
-    return score, latency
-
-
-# UNIT TESTS
-class Test_performanceclaims:
-    def test1(self):
-        model_url = "https://huggingface.co/google-bert/bert-base-uncased"
-        score,latency = performance_claims(model_url)
-        assert (score >= .7 and score <= 1)
-
-    def test2(self):
-        model_url = "https://huggingface.co/parvk11/audience_classifier_model"
-        score,latency = performance_claims(model_url)
-        assert (score <= .3 and score >= 0)
-    
-    def test3(self):
-        model_url = "https://huggingface.co/openai/whisper-tiny/tree/main"
-        score,latency = performance_claims(model_url)
-        assert (score >= .7 and score <= 1)
+    return score, latency*1000

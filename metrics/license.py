@@ -314,7 +314,6 @@ def get_license_score_cached(model_input) -> Tuple[float, int]:
         logger.debug(f"Using cached license result for {model_id}")
         return _license_cache[model_id]
     
-    logger.info(f"Calculating license score for {model_id}")
     result = get_license_score(model_input)
     _license_cache[model_id] = result
     return result

@@ -9,6 +9,7 @@ from metrics.ramp_up_time import ramp_up_time
 from metrics.license import get_license_score
 from print_metrics import print_model_evaluation
 import logger
+import concurrent.futures
 
 import time
 

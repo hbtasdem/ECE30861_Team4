@@ -82,8 +82,12 @@ def dataset_and_code_score(code_url: str, dataset_url: str) -> tuple[float,float
     # Use AI to parse Dataset url based on this Piazza post:
     #   "Yes you are suppose to use GenAI to help parse the information from the dataset link"
     if dataset_url:
+        score += .1 # add score for just having a dataset
+        
+        # now use AI since the dataset could be huggingface or not 
         prompt = ( f"Analyze the following dataset url to measure if the dataset used for training"
                    f"and benchmarking is well documented. This is a dataset used for a huggingface model."
+                   f"If it is a widely used dataset such as bookcorpus you can assume it is very good."
                    f"Dataset URL:\n{dataset_url}"
                    f"Return a score between 0 and 1. I am using this in code, so do not return ANYTHING"
                    f"but the float score. NO EXPLANATION. NOTHING BUT A FLOAT BETWEEN 0 AND 1.")
@@ -95,7 +99,7 @@ def dataset_and_code_score(code_url: str, dataset_url: str) -> tuple[float,float
                 llm_score = float(llm_ouput.strip())
                 if (llm_score >= 0) and (llm_score <= 1):
                     valid_llm_output = True
-                    score += llm_score * 0.5
+                    score += llm_score * 0.4
                 else:
                     logger.debug("Invalid llm output. Retrying.")
             except:
@@ -104,7 +108,7 @@ def dataset_and_code_score(code_url: str, dataset_url: str) -> tuple[float,float
     end = time.time()
     latency = end - start
 
-    return score, latency
+    return score, latency*1000
 
 # UNIT TEST
 class Test_datasetandcodescore:
