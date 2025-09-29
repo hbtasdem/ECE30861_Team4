@@ -41,7 +41,11 @@ def main(model_info, model_readme, raw_model_url, code_info, code_readme, raw_da
     data_quality_score, dq_latency = results["data_quality"]
     code_quality_score, cq_latency = results["code_quality"]
     dc_score, dc_latency = results["dc_score"]
-    perf_score, perf_latency = results["performance_claims"]
+    try:
+        perf_score, perf_latency = results["performance_claims"]
+    except (TypeError, KeyError):
+        logger.debug("GenAI query failed to produce a result")
+        perf_score, perf_latency = 0.0, 0
     size_scores, net_size_score, size_latency = results["size_score"]
     license_score, license_latency = results["license_score"]
     bus_score, bus_latency = results["bus_factor"]
@@ -50,7 +54,7 @@ def main(model_info, model_readme, raw_model_url, code_info, code_readme, raw_da
     logger.info("Concurrent thread results unpacked")
 
     # Final net score calculation
-    net_score = 0.1 * license_score + 0.1 * ramp_score + 0.1 * net_size_score + 0.15 * data_quality_score + 0.1 * bus_score + 0.2 * dc_score + 0.1 * code_quality_score + 0.15 * perf_score
+    net_score = 0.1 * license_score + 0.11 * ramp_score + 0.12 * net_size_score + 0.15 * data_quality_score + 0.11 * bus_score + 0.2 * dc_score + 0.11 * code_quality_score + 0.1 * perf_score
 
     end = time.time()
     net_latency = int((end - start) * 1000)
