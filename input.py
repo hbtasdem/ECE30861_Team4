@@ -28,7 +28,7 @@ def find_dataset(model_readme: str, seen_datasets: set) -> str:
     return "" # None found
 
 '''
-Main function to get & condition the user input url
+Main function to get & condiion the user input url
 
 Parameters
 ----------
