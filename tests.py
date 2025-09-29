@@ -106,7 +106,7 @@ class Test_Dataset_Quality: # Model tests
             'createdAt': (datetime.now() - timedelta(days= 800)).isoformat() + 'Z'
         }
         
-        readme = "Model for stuff. It works okay I guess. No specific details provided."
+        readme = "Model."
         
         # Unpack the tuple
         score, latency = metrics.data_quality.data_quality(api_info, readme)

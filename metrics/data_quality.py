@@ -41,8 +41,7 @@ def complete_checker(api_info, readme):
             score += 1
             continue
         
-        # Check for any of the keywords in readme (flexible matching)
-        if any(keyword.lower() in readme.lower() for keyword in keywords):
+        if any(keyword.lower() in readme.lower() for keyword in keywords): # Check for any of the keywords in readme (flexible matching)
             score += 1
     
     logger.info(f"Completeness keywords found: {score}")
@@ -57,40 +56,6 @@ def complete_checker(api_info, readme):
     else:
         return 0.1
     
-
-def coverage_checker(api_info: str, readme: str):
-    
-    logger.debug("Starting coverage check")
-    
-    # Expanded coverage indicators - include scale/size indicators
-    checked_words = [
-        # Original diversity words
-        'diverse', 'diversity', 'varied', 'variety', 'various', 'different',
-        'heterogeneous', 'mixed', 'multiple', 'range', 'spectrum',
-        'representative', 'represents', 'representative sample', 'cross-section',
-        'reflects', 'mirrors', 'captures', 'encompasses', 'covers',
-        'comprehensive', 'extensive', 'broad', 'wide', 'spanning',
-        'balanced', 'well-balanced', 'evenly distributed', 'uniform',
-        'stratified', 'proportional', 'equal representation', 'fair distribution',
-        
-        # NEW: Scale and corpus size indicators 
-        'large corpus', 'large dataset', 'millions', 'thousands', 'billion',
-        'books', 'wikipedia', 'web', 'internet', 'corpus', 'collection',
-        'unpublished', 'publicly available', 'raw texts', 'unlabeled'
-    ]
-    
-    coverage_count = sum(1 for word in checked_words if word in readme.lower())
-    logger.debug(f"Coverage keywords found: {coverage_count}")
-    
-
-    if coverage_count >= 4:  # Lowered from 5
-        return 1.0
-    elif coverage_count >= 2:  # Lowered from 3  
-        return 0.7
-    elif coverage_count >= 1:
-        return 0.5
-    else:
-        return 0.2  # Less harsh penalty
 
 def correct_checker(readme: str):
     import re
@@ -163,18 +128,26 @@ def coverage_checker(api_info: str, readme: str):
     ''' 
     logger.debug("Starting coverage check")
     
-    checked_words = ['diverse', 'diversity', 'varied', 'variety', 'various', 'different',
-    'heterogeneous', 'mixed', 'multiple', 'range', 'spectrum',
-    
-    # Representativeness
-    'representative', 'represents', 'representative sample', 'cross-section',
-    'reflects', 'mirrors', 'captures', 'encompasses', 'covers',
-    'comprehensive', 'extensive', 'broad', 'wide', 'spanning',
-    
-    # Balance and distribution
-    'balanced', 'well-balanced', 'evenly distributed', 'uniform',
-    'stratified', 'proportional', 'equal representation', 'fair distribution',
-    'well-distributed', 'equally represented', 'balanced across']
+    checked_words = [
+        # Diversity indicators
+        'diverse', 'diversity', 'varied', 'variety', 'various', 'different',
+        'heterogeneous', 'mixed', 'multiple', 'range', 'spectrum',
+        
+        # Representativeness
+        'representative', 'represents', 'representative sample', 'cross-section',
+        'reflects', 'mirrors', 'captures', 'encompasses', 'covers',
+        'comprehensive', 'extensive', 'broad', 'wide', 'spanning',
+        
+        # Balance and distribution
+        'balanced', 'well-balanced', 'evenly distributed', 'uniform',
+        'stratified', 'proportional', 'equal representation', 'fair distribution',
+        'well-distributed', 'equally represented', 'balanced across',
+        
+        # Scale and corpus size indicators
+        'large corpus', 'large dataset', 'millions', 'thousands', 'billion',
+        'books', 'wikipedia', 'web', 'internet', 'corpus', 'collection',
+        'unpublished', 'publicly available', 'raw texts', 'unlabeled'
+    ]
     
 
     coverage_count = sum(1 for word in checked_words if word in readme)
@@ -281,5 +254,5 @@ def data_quality(api_info, readme):
 
     end = time.time()
     latency = end - start
-    
+    logger.info(f"Final data quality score: {data_quality_score}")
     return data_quality_score, latency
