@@ -19,6 +19,11 @@ from metrics.bus_factor import bus_factor
 from input import find_dataset
 from datetime import datetime, timedelta
 import requests as rq
+import pytest
+from unittest.mock import patch, mock_open, MagicMock
+from input import find_dataset, main
+import input
+import builtins
 
 """
 Usage Instructions: 
@@ -798,3 +803,56 @@ class Test_Bus_Factor:
         api_info = {'_id': '63314bb6acb6472115aa55a9', 'id': 'openai/whisper-tiny', 'private': False, 'pipeline_tag': 'automatic-speech-recognition', 'library_name': 'transformers', 'tags': ['transformers', 'pytorch', 'tf', 'jax', 'safetensors', 'whisper', 'automatic-speech-recognition', 'audio', 'hf-asr-leaderboard', 'en', 'zh', 'de', 'es', 'ru', 'ko', 'fr', 'ja', 'pt', 'tr', 'pl', 'ca', 'nl', 'ar', 'sv', 'it', 'id', 'hi', 'fi', 'vi', 'he', 'uk', 'el', 'ms', 'cs', 'ro', 'da', 'hu', 'ta', 'no', 'th', 'ur', 'hr', 'bg', 'lt', 'la', 'mi', 'ml', 'cy', 'sk', 'te', 'fa', 'lv', 'bn', 'sr', 'az', 'sl', 'kn', 'et', 'mk', 'br', 'eu', 'is', 'hy', 'ne', 'mn', 'bs', 'kk', 'sq', 'sw', 'gl', 'mr', 'pa', 'si', 'km', 'sn', 'yo', 'so', 'af', 'oc', 'ka', 'be', 'tg', 'sd', 'gu', 'am', 'yi', 'lo', 'uz', 'fo', 'ht', 'ps', 'tk', 'nn', 'mt', 'sa', 'lb', 'my', 'bo', 'tl', 'mg', 'as', 'tt', 'haw', 'ln', 'ha', 'ba', 'jw', 'su', 'arxiv:2212.04356', 'license:apache-2.0', 'model-index', 'endpoints_compatible', 'region:us'], 'downloads': 524202, 'likes': 367, 'modelId': 'openai/whisper-tiny', 'author': 'openai', 'sha': '169d4a4341b33bc18d8881c4b69c2e104e1cc0af', 'lastModified': '2024-02-29T10:57:33.000Z', 'gated': False, 'disabled': False, 'widgetData': [{'example_title': 'Librispeech sample 1', 'src': 'https://cdn-media.huggingface.co/speech_samples/sample1.flac'}, {'example_title': 'Librispeech sample 2', 'src': 'https://cdn-media.huggingface.co/speech_samples/sample2.flac'}], 'model-index': [{'name': 'whisper-tiny', 'results': [{'task': {'name': 'Automatic Speech Recognition', 'type': 'automatic-speech-recognition'}, 'dataset': {'name': 'LibriSpeech (clean)', 'type': 'librispeech_asr', 'config': 'clean', 'split': 'test', 'args': {'language': 'en'}}, 'metrics': [{'name': 'Test WER', 'type': 'wer', 'value': 7.54, 'verified': False}]}, {'task': {'name': 'Automatic Speech Recognition', 'type': 'automatic-speech-recognition'}, 'dataset': {'name': 'LibriSpeech (other)', 'type': 'librispeech_asr', 'config': 'other', 'split': 'test', 'args': {'language': 'en'}}, 'metrics': [{'name': 'Test WER', 'type': 'wer', 'value': 17.15, 'verified': False}]}, {'task': {'name': 'Automatic Speech Recognition', 'type': 'automatic-speech-recognition'}, 'dataset': {'name': 'Common Voice 11.0', 'type': 'mozilla-foundation/common_voice_11_0', 'config': 'hi', 'split': 'test', 'args': {'language': 'hi'}}, 'metrics': [{'name': 'Test WER', 'type': 'wer', 'value': 141, 'verified': False}]}]}], 'config': {'architectures': ['WhisperForConditionalGeneration'], 'model_type': 'whisper', 'tokenizer_config': {'bos_token': '<|endoftext|>', 'eos_token': '<|endoftext|>', 'pad_token': '<|endoftext|>', 'unk_token': '<|endoftext|>'}}, 'cardData': {'language': ['en', 'zh', 'de', 'es', 'ru', 'ko', 'fr', 'ja', 'pt', 'tr', 'pl', 'ca', 'nl', 'ar', 'sv', 'it', 'id', 'hi', 'fi', 'vi', 'he', 'uk', 'el', 'ms', 'cs', 'ro', 'da', 'hu', 'ta', 'no', 'th', 'ur', 'hr', 'bg', 'lt', 'la', 'mi', 'ml', 'cy', 'sk', 'te', 'fa', 'lv', 'bn', 'sr', 'az', 'sl', 'kn', 'et', 'mk', 'br', 'eu', 'is', 'hy', 'ne', 'mn', 'bs', 'kk', 'sq', 'sw', 'gl', 'mr', 'pa', 'si', 'km', 'sn', 'yo', 'so', 'af', 'oc', 'ka', 'be', 'tg', 'sd', 'gu', 'am', 'yi', 'lo', 'uz', 'fo', 'ht', 'ps', 'tk', 'nn', 'mt', 'sa', 'lb', 'my', 'bo', 'tl', 'mg', 'as', 'tt', 'haw', 'ln', 'ha', 'ba', 'jw', 'su'], 'tags': ['audio', 'automatic-speech-recognition', 'hf-asr-leaderboard'], 'widget': [{'example_title': 'Librispeech sample 1', 'src': 'https://cdn-media.huggingface.co/speech_samples/sample1.flac'}, {'example_title': 'Librispeech sample 2', 'src': 'https://cdn-media.huggingface.co/speech_samples/sample2.flac'}], 'model-index': [{'name': 'whisper-tiny', 'results': [{'task': {'name': 'Automatic Speech Recognition', 'type': 'automatic-speech-recognition'}, 'dataset': {'name': 'LibriSpeech (clean)', 'type': 'librispeech_asr', 'config': 'clean', 'split': 'test', 'args': {'language': 'en'}}, 'metrics': [{'name': 'Test WER', 'type': 'wer', 'value': 7.54, 'verified': False}]}, {'task': {'name': 'Automatic Speech Recognition', 'type': 'automatic-speech-recognition'}, 'dataset': {'name': 'LibriSpeech (other)', 'type': 'librispeech_asr', 'config': 'other', 'split': 'test', 'args': {'language': 'en'}}, 'metrics': [{'name': 'Test WER', 'type': 'wer', 'value': 17.15, 'verified': False}]}, {'task': {'name': 'Automatic Speech Recognition', 'type': 'automatic-speech-recognition'}, 'dataset': {'name': 'Common Voice 11.0', 'type': 'mozilla-foundation/common_voice_11_0', 'config': 'hi', 'split': 'test', 'args': {'language': 'hi'}}, 'metrics': [{'name': 'Test WER', 'type': 'wer', 'value': 141, 'verified': False}]}]}], 'pipeline_tag': 'automatic-speech-recognition', 'license': 'apache-2.0'}, 'transformersInfo': {'auto_model': 'AutoModelForSpeechSeq2Seq', 'pipeline_tag': 'automatic-speech-recognition', 'processor': 'AutoProcessor'}, 'siblings': [{'rfilename': '.gitattributes'}, {'rfilename': 'README.md'}, {'rfilename': 'added_tokens.json'}, {'rfilename': 'config.json'}, {'rfilename': 'flax_model.msgpack'}, {'rfilename': 'generation_config.json'}, {'rfilename': 'merges.txt'}, {'rfilename': 'model.safetensors'}, {'rfilename': 'normalizer.json'}, {'rfilename': 'preprocessor_config.json'}, {'rfilename': 'pytorch_model.bin'}, {'rfilename': 'special_tokens_map.json'}, {'rfilename': 'tf_model.h5'}, {'rfilename': 'tokenizer.json'}, {'rfilename': 'tokenizer_config.json'}, {'rfilename': 'vocab.json'}], 'spaces': ['Ailyth/Multi-voice-TTS-GPT-SoVITS', 'sanchit-gandhi/whisper-jax-spaces', 'Matthijs/whisper_word_timestamps', 'OpenSound/CapSpeech-TTS', 'radames/whisper-word-level-trim', 'lmz/candle-whisper', 'VIDraft/Portrait-Animation', 'gobeldan/insanely-fast-whisper-webui', 'devilent2/whisper-v3-zero', 'kadirnar/Whisper_M2M100_BioGpt', 'speechbox/whisper-speaker-diarization', 'nvidia/audio-flamingo-2', 'Splend1dchan/BreezyVoice-Playground', 'souljoy/ChatPDF', 'ardha27/Youtube-AI-Summarizer', 'mozilla-ai/transcribe', 'innev/whisper-Base', 'JacobLinCool/BreezyVoice', 'joaogante/assisted_generation_benchmarks', 'aetheris-ai/aibom-generator', 'eustlb/whisper-vs-distil-whisper-fr', 'RaviNaik/MultiModal-Phi2', 'kevinwang676/GPT-SoVITS-Trilingual', 'TaiYouWeb/whisper-multi-model', 'hchcsuim/Automatic-Speech-Recognition-Speech-to-Text', 'ghostai1/Audio-Translator', 'CeibalUY/transcribir_audio', 'devilent2/whisper-v3-zero-dev', 'ardha27/VideoAnalyzer', 'Anupam007/Automated-Meeting-Minutes', 'Johnyquest7/medical-transcription-notes', 'renatotn7/editarVideoAtravesDeTexto', 'radames/candle-whisper', 'vakodiya/streamlit-gpt2', 'sampsontan/llama3-rag', 'invincible-jha/MentalHealthVocalBiomarkers', 'lele1894/dubbing', 'Ericboi229-gmx-co-uk/insanely-fast-whisper-webui', 'ranialahassn/languagedetectorWhisper', 'Hamam12/Hoama', 'yolloo/VoiceQ', 'renatotn7/EspacoTeste', 'IstvanPeter/openai-whisper-tiny', 'joaogabriellima/openai-whisper-tiny', 'abrar-adnan/speech-analyzer', 'ahmedghani/Inference-Endpoint-Deployment', 'GiorgiSekhniashvili/geo-whisper', 'reach-vb/whisper_word_timestamps', 'jamesyoung999/whisper_word_timestamps', 'OdiaGenAI/Olive_Whisper_ASR', 'Aryan619348/google-calendar-agent', 'seiching/ainotes', 'filben/transcrever_audio_pt', 'Tonic/WhisperFusionTest', 'sdlc/Multi-Voice', 'ricardo-lsantos/openai-whisper-tiny', 'demomodels/lyrics', 'Tohidichi/Semantic-chunker-yt-vid', 'devilent2/whisper-v3-zero-canary', 'MikeTangoEcho/asrnersbx', 'GatinhoEducado/speech-to-speech-translation', 'RenanOF/AudioTexto', 'Anupam251272/Real-Time-Language-Translator-AI', 'garyd1/AI_Mock_Interview', 'Jwrockon/ArtemisAIWhisper', 'ZealAI/Zeal-AI', 'abdullahbilal-y/ML_Playground_Dashboard', 'Anupam007/RealTime-Meeting-Notes', 'chakchakAI/CrossTalk-Translation-AI', 'Mohammed-Islem/Speech-Processing-Lab-Project-App', 'anushka027/Whispr.ai', 'Draxgabe/acuspeak-demo', 'sebibibaba/Transcripteur-Vocal', 'pareek-joshtalksai/test-hindi-2', 'amurienne/sambot', 'dwitee/ai-powered-symptom-triage', 'KNipun/Whisper-AI-Psychiatric', 'notojasv/voice-assistant-demo', 'yoshcn/openai-whisper-tiny', 'natandiasm/openai-whisper-tiny', 'Bertievidgen/openai-whisper-tiny', 'masterkill888/openai-whisper-tiny', 'awacke1/ASR-openai-whisper-tiny', 'beyond/speech2text', 'KaliJerry/openai-whisper-tiny', 'youngseo/whisper', 'Stevross/openai-whisper-tiny', 'ericckfeng/whisper-Base-Clone', 'ysoheil/whisper_word_timestamps', 'Korla/hsb_stt_demo', 'mackaber/whisper-word-level-trim', 'kevinwang676/whisper_word_timestamps_1', 'mg5812/tuning-whisper', 'mg5812/whisper-tuning', 'futranbg/S2T', 'hiwei/asr-hf-api', 'pablocst/asr-hf-api', 'Auxiliarytrinket/my-speech-to-speech-translation', 'Photon08/summarzation_test', 'Indranil08/test'], 'createdAt': '2022-09-26T06:50:30.000Z', 'safetensors': {'parameters': {'F32': 37760640}, 'total': 37760640}, 'usedStorage': 1831289730}
         actual_bus_factor, actual_latency = bus_factor(api_info)
         assert actual_bus_factor <= (min(1, expected_bus_factor + max_deviation)) and actual_bus_factor >= (max(0, expected_bus_factor - max_deviation))
+
+class Test_Input:
+
+    def test_find_dataset_found(self):
+        readme = "this model was trained using dataset1 from huggingface"
+        seen = {"https://huggingface.co/datasets/dataset1"}
+        result = find_dataset(readme, seen)
+        assert result == "https://huggingface.co/datasets/dataset1"
+
+    def test_find_dataset_not_found(self):
+        readme = "no known dataset mentioned here"
+        seen = {"https://huggingface.co/datasets/dataset2"}
+        result = find_dataset(readme, seen)
+        assert result == ""
+
+    @patch("builtins.open", new_callable=mock_open, read_data="https://github.com/user/repo,https://huggingface.co/datasets/dataset1,https://huggingface.co/models/model1\n")
+    @patch("requests.get")
+    @patch("input.metric_concurrent.main")
+    def test_main_runs_successfully(self, mock_metric_main, mock_requests_get, mock_file):
+        # Fake API responses
+        model_api_response = MagicMock()
+        model_api_response.status_code = 200
+        model_api_response.json.return_value = {"mock": "model_info"}
+
+        readme_response = MagicMock()
+        readme_response.status_code = 200
+        readme_response.text = "this is a readme containing dataset1"
+
+        code_api_response = MagicMock()
+        code_api_response.status_code = 200
+        code_api_response.json.return_value = {"mock": "code_info"}
+
+        # Github readme
+        code_readme_response = MagicMock()
+        code_readme_response.status_code = 200
+        code_readme_response.text = "code readme with stuff"
+
+        # Define the sequence of responses
+        mock_requests_get.side_effect = [
+            model_api_response,  # model API
+            readme_response,     # model README
+            model_api_response,  # dataset API
+            readme_response,     # dataset README
+            code_api_response,   # GitHub repo API
+            code_readme_response # GitHub README
+        ]
+
+        # Fake sys.argv
+        with patch.object(input.sys, 'argv', ["input.py", "fake_input.txt"]):
+            main()
+
+        assert mock_metric_main.called
+        assert mock_requests_get.call_count == 6
