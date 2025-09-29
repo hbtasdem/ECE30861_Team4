@@ -154,9 +154,7 @@ class Test_Dataset_Quality: # Model tests
         assert score <= 0.3
         
 class Test_Code_Quality: # Github repo tests 
-    def test_code_good(self):  # Good code quality case
-       
-        
+    def test_code_github_good(self):  # Good code quality case
         model_info = {}  # Empty if no model
         code_info = {'stargazers_count': 50000, 'forks_count': 15000}  # GitHub data
         model_readme = """  # Empty if no model
@@ -172,9 +170,36 @@ class Test_Code_Quality: # Github repo tests
         
         assert score >= 0.8
 
-    def test_code_bad(self):  # Poor code quality case
+    def test_code_github_bad(self):  # Poor code quality case
         model_info = {}
         code_info = {'stargazers_count': 5, 'forks_count': 1} 
+        model_readme = ""
+        code_readme = "Basic repo"  
+        
+  
+        score, latency = metrics.code_quality.code_quality(model_info, code_info, model_readme, code_readme)
+        
+        assert score <= 0.3
+        
+    def test_code_model_good(self):  # Good code quality case
+        model_info = {'downloads': 710000}  
+        code_info = {} 
+        model_readme = """  # Empty if no model
+        This is a comprehensive library for machine learning tasks.
+        Installation instructions are provided below with detailed examples.
+        The code is thoroughly tested using pytest and unittest frameworks.
+        Continuous integration ensures testing reliability across versions.
+        Complete documentation with usage examples and API reference.
+        """ * 30  # Make it long for full reusability score
+        code_readme = "testing pytest unittest ci continuous integration"  # Test keywords
+  
+        score, latency = metrics.code_quality.code_quality(model_info, code_info, model_readme, code_readme)
+        
+        assert score >= 0.8
+
+    def test_code_model_bad(self):  # Poor code quality case
+        model_info = {'downloads': 1000}  
+        code_info = {} 
         model_readme = ""
         code_readme = "Basic repo"  
         

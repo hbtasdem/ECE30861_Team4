@@ -14,24 +14,32 @@ Info:  jetson_nano: 0.88
 Info:  desktop_pc: 0.97
 Info:  aws_server: 1.0
 Info:Net size score: 0.88
-Info:Size calculation latency: 179 ms
+Info:Size calculation latency: 182 ms
 Info:Calculating data_quality metric
 Info:Completeness keywords found: 8
 Info:eval ments found: 1
 Info:accuracy: 0.95
+Info:Final data quality score: 0.99
 Info:Calculating data_quality metric
 Info:Completeness keywords found: 1
 Info:eval ments found: 0
 Info:No accuracy information found
+Info:Final data quality score: 0.3
 Info:Calculating data_quality metric
 Info:Completeness keywords found: 8
 Info:eval ments found: 1
 Info:accuracy: 0.92
+Info:Final data quality score: 0.9239999999999999
 Info:Calculating data_quality metric
 Info:Completeness keywords found: 1
 Info:eval ments found: 0
 Info:No accuracy information found
+Info:Final data quality score: 0.3
 Info:Calculating code_quality metric
 Info:Final code quality score: 0.8799999999999999
+Info:Calculating code_quality metric
+Info:Final code quality score: 0.08000000000000002
+Info:Calculating code_quality metric
+Info:Final code quality score: 1.0
 Info:Calculating code_quality metric
 Info:Final code quality score: 0.08000000000000002

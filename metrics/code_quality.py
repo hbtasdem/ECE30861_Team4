@@ -88,6 +88,7 @@ def code_quality(model_info: str, code_info: str, model_readme: str, code_readme
     else:
         logger.debug("No readme available for testability check")
         test_score = 0.0
+    
         
     code_quality_score = min(len_score * 0.4 + pop_score * 0.4 + test_score * 0.2, 1)
     logger.info(f"Final code quality score: {code_quality_score}")
