@@ -55,9 +55,7 @@ if [ "$COMMAND" == "install" ]; then
 # ./run test
 #---------------------
 elif [ "$COMMAND" == "test" ]; then
-    # Finish later when create test suite
-    echo "Running test suite"
-    # python test_suite.py
+    pytest tests.py -v
     exit 0
 
 #---------------------

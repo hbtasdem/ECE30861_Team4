@@ -42,7 +42,6 @@ def main(model_info, model_readme, raw_model_url, code_info, code_readme, raw_da
     code_quality_score, cq_latency = results["code_quality"]
     dc_score, dc_latency = results["dc_score"]
     perf_score, perf_latency = results["performance_claims"]
-    print(results["performance_claims"])
     size_scores, net_size_score, size_latency = results["size_score"]
     license_score, license_latency = results["license_score"]
     bus_score, bus_latency = results["bus_factor"]
